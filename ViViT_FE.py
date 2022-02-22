@@ -47,6 +47,7 @@ class ViViT_FE(nn.Module):
         self.Spatial_patch_to_embedding = nn.Linear(in_chans, spatial_embed_dim)
         self.Spatial_pos_embed = nn.Parameter(torch.zeros(1, num_spat_tokens+1, spatial_embed_dim)) #num joints + 1 for cls token
         self.spatial_cls_token= nn.Parameter(torch.zeros(1,1,spatial_embed_dim)) #spatial cls token patch embed
+        self.spat_op = spat_op
         
         self.Temporal_pos_embed = nn.Parameter(torch.zeros(1, num_temp_tokens+1, temporal_embed_dim)) #additional pos embedding zero for class token
         self.temporal_cls_token = nn.Parameter(torch.zeros(1, 1, temporal_embed_dim)) #temporal class token patch embed - this token is used for final classification!
@@ -96,7 +97,7 @@ class ViViT_FE(nn.Module):
         c=x.shape[-1]
         ###Extract Class token head from the output
         cls_token = x[:,-1,:]
-        cls_token = torch.reshape(cls_token,(b,f*c))
+        cls_token = torch.reshape(cls_token,(b,f,c))
         x = x[:,:s,:]
         x = rearrange(x, '(b f) s Se -> b f (s Se)', f=f) #BxFx(sxSe)
 
@@ -110,8 +111,8 @@ class ViViT_FE(nn.Module):
     def Temporal_forward_features(self, x):
         
         b  = x.shape[0]
-        class_token=torch.tile(self.temporal_cls_token,(b,1,1)) #(B,1,embed_dim)
-        x = torch.cat((x,class_token),dim=1) #(B,F+1,embed_dim)
+        class_token=torch.tile(self.temporal_cls_token,(b,1,1)) #(B,1,temp_embed_dim)
+        x = torch.cat((x,class_token),dim=1) #(B,F+1,temp_embed_dim)
         x += self.Temporal_pos_embed
 
         x = self.pos_drop(x)
@@ -126,13 +127,9 @@ class ViViT_FE(nn.Module):
         return x
 
     def forward(self, x):
-        spat_op='cls'
-        x,cls_token = self.Spatial_forward_features(x.)
-        temp_cls_token = torch.unsqueeze(temp_cls_token,1) #Bx1xJC
-        #print("Temp cls token: ",temp_cls_token.shape)
-        x= torch.cat((x,temp_cls_token),dim=1)
-        #print("Temopral transformer input: ",x.shape) #Bxf+1xJC
-        
+        x = self.Spatial_forward_features(x,self.spat_op)
+        temp_cls_token = torch.unsqueeze(temp_cls_token,1) #Bx1xtemp_embed
+        x= torch.cat((x,temp_cls_token),dim=1) #Temporal input: b x f+1 x tempral_embed        
         x = self.forward_features(x)
         x = self.class_head(x)
 
