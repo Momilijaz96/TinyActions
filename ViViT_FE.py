@@ -8,12 +8,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .model_utils import Block
+from model_utils import Block
 
 
 class ViViT_FE(nn.Module):
-    def __init__(self, in_chans=3, spatial_embed_dim=32, sdepth=4, tdepth=4, num_spat_tokens=20, num_temp_tokens=20,
-                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, spat_op='cls',
+    def __init__(self, in_chans=3, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100),
+                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, spat_op='cls', tubelet_dim=(3,4,4,4),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
         Args:
@@ -21,8 +21,6 @@ class ViViT_FE(nn.Module):
             spatial_embed_dim (int): spatial patch embedding dimension 
             sdepth (int): depth of spatial transformer
             tdepth(int):depth of temporal transformer
-            num_spat_tokens(int): number of tokens input to spatial transformer - s
-            num_temp_tokens(int): numbe of frames or tokens with varying temoral indices - f
             num_heads (int): number of attention heads
             mlp_ratio (int): ratio of mlp hidden dim to embedding dim
             qkv_bias (bool): enable bias for qkv if True
@@ -32,6 +30,8 @@ class ViViT_FE(nn.Module):
             attn_drop_rate (float): attention dropout rate
             drop_path_rate (float): stochastic depth rate
             norm_layer: (nn.Module): normalization layer
+            tubelet_dim(tuple): tubelet size (ch,t,h,w)
+            vid_dim: Original video (H , W, T)
         """
         super().__init__()
 
@@ -42,13 +42,20 @@ class ViViT_FE(nn.Module):
         print("Drop Rate: ",drop_rate)
         print("Attn drop rate: ",attn_drop_rate)
         print("Drop path rate: ",drop_path_rate)
+        print("Tubelet dim: ",tubelet_dim)
+
+        c,tt,th,tw=tubelet_dim
+        self.tubelet_dim=tubelet_dim
 
         ### spatial patch embedding
-        self.Spatial_patch_to_embedding = nn.Linear(in_chans, spatial_embed_dim)
+        self.Spatial_patch_to_embedding = nn.Conv3d(c, spatial_embed_dim, self.tubelet_dim[1:],
+                                        stride=self.tubelet_dim[1:],padding='valid',dilation=1)
+        num_spat_tokens = (vid_dim[0]//th) * (vid_dim[1]//tw)
         self.Spatial_pos_embed = nn.Parameter(torch.zeros(1, num_spat_tokens+1, spatial_embed_dim)) #num joints + 1 for cls token
         self.spatial_cls_token= nn.Parameter(torch.zeros(1,1,spatial_embed_dim)) #spatial cls token patch embed
         self.spat_op = spat_op
         
+        num_temp_tokens=vid_dim[-1] // tt
         self.Temporal_pos_embed = nn.Parameter(torch.zeros(1, num_temp_tokens+1, temporal_embed_dim)) #additional pos embedding zero for class token
         self.temporal_cls_token = nn.Parameter(torch.zeros(1, 1, temporal_embed_dim)) #temporal class token patch embed - this token is used for final classification!
         self.pos_drop = nn.Dropout(p=drop_rate)
@@ -80,32 +87,41 @@ class ViViT_FE(nn.Module):
 
     def Spatial_forward_features(self, x, spat_op='cls'):
         #spat_op: 'cls' output is CLS token, otherwise global average pool of attention encoded spatial features
-        #Input shape: batch x frame x spatial tokens x tube size
-        b,f,s,t = x.shape
-        x = rearrange(x, 'b f s t  -> (b f) s t', ) #for spatial transformer, batch size if b*f
-        x = self.Spatial_patch_to_embedding(x) #all input spatial tokens, outut: b x f x s x Se(spatial_embed)
-        class_token=torch.tile(self.spatial_cls_token,(b*f,1,1)) #(B*F,1,1)
-        x = torch.cat((x,class_token),dim=1) 
-        #print("After concate x dim: ",x.shape) #(B*F,s+1,spatial_embed)
-        x += self.Spatial_pos_embed
+        
+        #Input shape: batch x num_clips x H x W x (tube tempo dim * 3)
+        b,nc,ch,H,W,t = x.shape
+        x = rearrange(x, 'b nc ch H W t  -> (b nc) ch H W t', ) #for spatial transformer, batch size if b*f
+        x = self.Spatial_patch_to_embedding(x) #all input spatial tokens, op: (b nc) x H/h x W/w x Se
+
+        #Reshape input to pass through embedding layer
+        _,Se,h,w,_ = x.shape
+        x = torch.reshape(x,(b*nc,-1,Se)) #batch x num_spatial_tokens(s) x spat_embed_dim
+        _,s,_ = x.shape
+        
+        class_token=torch.tile(self.spatial_cls_token,(b*nc,1,1)) #(B*nc,1,1)
+        x = torch.cat((x,class_token),dim=1) #(B*nc,s+1,spatial_embed)
+        x += self.Spatial_pos_embed 
         x = self.pos_drop(x)
 
+        #Pass through transformer blocks
         for blk in self.Spatial_blocks:
             x = blk(x)
 
         x = self.Spatial_norm(x)
-        c=x.shape[-1]
+
         ###Extract Class token head from the output
         cls_token = x[:,-1,:]
-        cls_token = torch.reshape(cls_token,(b,f,c))
-        x = x[:,:s,:]
-        x = rearrange(x, '(b f) s Se -> b f (s Se)', f=f) #BxFx(sxSe)
+        cls_token = torch.reshape(cls_token,(b,nc,Se))
 
         #Determine the output type from Spatial transformer
         if spat_op=='cls':
-            return cls_token
+            return cls_token #b x nc x Se
         else:
-            return x #!!!!!!!!!!!!!!!!!!!!!!!!ALERT: ADD GLOBAL AVG POOLING HERE!!!!!!!!!!!!!!!!!
+            x = x[:,:s,:]
+            x = rearrange(x, '(b nc) s Se -> (b nc) Se s')
+            x = F.avg_pool1d(x,x.shape[-1],stride=x.shape[-1]) #(b*nc) x Se x 1
+            x = torch.reshape(x, (b,nc,Se))
+            return x #b x nc x Se
         
 
     def Temporal_forward_features(self, x):
@@ -127,15 +143,16 @@ class ViViT_FE(nn.Module):
         return x
 
     def forward(self, x):
-        x = self.Spatial_forward_features(x,self.spat_op)
-        temp_cls_token = torch.unsqueeze(temp_cls_token,1) #Bx1xtemp_embed
-        x= torch.cat((x,temp_cls_token),dim=1) #Temporal input: b x f+1 x tempral_embed        
-        x = self.forward_features(x)
+        #Input x: batch x num_clips x num_chan x img_height x img_width x tublet_time
+        b , nc, ch, H, W, t = x.shape
+        
+        #Reshape input to pass through Conv3D patch embedding
+        x = self.Spatial_forward_features(x,self.spat_op) # b x nc x Se
+        x = self.Temporal_forward_features(x)
         x = self.class_head(x)
-
         return F.log_softmax(x,dim=1) 
 
-#model=ActRecogTransformer()
-#inp=torch.randn((64,120,25,3))
-#op=model(inp)
-#print("Op shape: ",op.shape)
+model=ViViT_FE()
+inp=torch.randn((1, 25, 3, 128 , 128 ,4))
+op=model(inp)
+print("Op shape: ",op.shape)
