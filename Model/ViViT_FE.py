@@ -139,7 +139,6 @@ class ViViT_FE(nn.Module):
         return x
 
     def forward(self, x):
-        print("Input shape: ",x.shape)
         x = x.permute(0,1,2,4,5,3)
         #Input x: batch x num_clips x num_chan x img_height x img_width x tublet_time
         b , nc, ch, H, W, t = x.shape
