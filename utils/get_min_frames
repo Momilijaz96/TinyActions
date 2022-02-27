@@ -1,0 +1,40 @@
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#Path to poses directory
+path='/home/mo926312/Documents/falldet/ntu_rgb/nturgb+d_skeletons/'
+
+#frames count in each action sample
+fc=[]
+samples_list=[]
+samples=os.listdir(path)
+
+#print(samples)
+for sample in samples:
+	#print("in loop")
+	sample_path=path+sample
+	#print(sample_path)
+	if sample.endswith('pkl'):
+		f=open(sample_path)
+		lines = f.readlines()
+		frames=int(lines[0]) #num of frames of this action
+		persons=int(lines[1])
+		fc.append(persons*frames)
+		lines=[]
+		samples_list.append(sample)
+		print(persons*frames)
+	else:
+		print(sample ,"not ends with .skeleton")
+#Print min frames
+fig, ax = plt.subplots(figsize =(10, 7))
+ax.hist(fc)
+plt.savefig('frames.png')
+print("Min Frames are ", np.min(fc), " for sample ",samples_list[np.argmin(fc)])
+print("Mean frames are: ",np.mean(fc))
+print("Max frames are: ",np.max(fc))
+print("Frame size variation: ",np.var(fc))
+print("Poses with less than 200 frames: ",np.sum(np.array(fc)>200))
+print("Total poses:",len(fc))
+#print(fc)

@@ -1,8 +1,5 @@
-import math
-import logging
+
 from functools import partial
-from collections import OrderedDict
-from this import s
 from einops import rearrange, repeat
 import numpy as np
 import torch
@@ -12,7 +9,7 @@ from model_utils import Block
 
 
 class ViViT_FE(nn.Module):
-    def __init__(self, in_chans=3, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100),
+    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,1000),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, spat_op='cls', tubelet_dim=(3,4,4,4),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
@@ -122,7 +119,6 @@ class ViViT_FE(nn.Module):
             x = F.avg_pool1d(x,x.shape[-1],stride=x.shape[-1]) #(b*nc) x Se x 1
             x = torch.reshape(x, (b,nc,Se))
             return x #b x nc x Se
-        
 
     def Temporal_forward_features(self, x):
         

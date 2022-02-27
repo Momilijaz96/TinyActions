@@ -1,0 +1,2 @@
+1. Rebalanced the train and validation set to ensure the presence of all classes in train and validation set.
+2. Number of videos in the train, validation and test splits are 16950, 3308 and 6097 respectively. 
