@@ -139,6 +139,7 @@ class ViViT_FE(nn.Module):
         return x
 
     def forward(self, x):
+        x = x.permute(0,1,2,4,5,3)
         #Input x: batch x num_clips x num_chan x img_height x img_width x tublet_time
         b , nc, ch, H, W, t = x.shape
         
@@ -147,8 +148,9 @@ class ViViT_FE(nn.Module):
         x = self.Temporal_forward_features(x)
         x = self.class_head(x)
         return F.log_softmax(x,dim=1) 
-
+'''
 model=ViViT_FE()
 inp=torch.randn((1, 25, 3, 128 , 128 ,4))
 op=model(inp)
 print("Op shape: ",op.shape)
+'''

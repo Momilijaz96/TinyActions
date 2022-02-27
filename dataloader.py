@@ -179,3 +179,25 @@ class TinyVirat(Dataset):
         for _class in video_labels:
             label[self.class_labels.index(_class)] = 1
         return clips, label
+'''
+if __name__ == '__main__':
+    shuffle = True
+    batch_size = 1
+
+    dataset = 'TinyVirat'
+    cfg = build_config(dataset)
+
+    data_generator = TinyVirat(cfg, 'val', 1.0, num_frames=16, skip_frames=2, input_size=112)
+    dataloader = DataLoader(data_generator, batch_size, shuffle=shuffle, num_workers=0)
+
+    start = time.time()
+
+    for epoch in range(0, 1):
+        for i, (clips, labels) in enumerate(tqdm(dataloader)):
+            clips = clips.data.numpy()
+            labels = labels.data.numpy()
+            print(clips.shape)
+            print(labels.shape)
+            break
+    print("time taken : ", time.time() - start)
+'''

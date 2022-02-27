@@ -38,7 +38,6 @@ validation_generator = DataLoader(val_dataset, **params)
 
 #Define model
 print("Initiating Model...")
-num_clips = #Number of toekns with unique temporal index
 num_classes=26
 vid_dim=(img_res,img_res,clip_length) #one sample dimension
 
@@ -64,7 +63,7 @@ minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 '''
 
 # Learning Rate Scheduler
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(minimizer.optimizer, max_epochs)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
@@ -90,9 +89,7 @@ for epoch in range(max_epochs):
         optimizer.zero_grad()
 
         # Ascent Step
-        #print("labels: ",targets.shape)
         predictions = model(inputs.float())
-        #print("prediction size: ",predictions.shape)
         batch_loss = criterion(predictions, targets)
         #batch_loss.mean().backward()
         #minimizer.ascent_step()
