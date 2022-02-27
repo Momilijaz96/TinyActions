@@ -82,7 +82,7 @@ for epoch in range(max_epochs):
     loss = 0.
     accuracy = 0.
     cnt = 0.
-    for inputs, targets in training_generator:
+    for inputs, targets in tqdm(training_generator):
         inputs = inputs.to(device)
         print("Inputs shape: ",inputs.shape)
         targets = targets.to(device)
