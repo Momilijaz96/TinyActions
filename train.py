@@ -28,10 +28,11 @@ vid_dim=(img_res,img_res,NUM_CLIPS) #one sample dimension - (H,W,T)
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':16,
+params = {'batch_size':4,
           'shuffle': shuffle,
           'num_workers': 4}
 max_epochs = 250
+gradient_accumulations = 8
 
 #Data Generators
 dataset = 'TinyVirat'
@@ -86,7 +87,7 @@ for epoch in range(max_epochs):
     loss = 0.
     accuracy = 0.
     cnt = 0.
-    for inputs, targets in tqdm(training_generator):
+    for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
         print("Inputs shape: ",inputs.shape)
         targets = targets.to(device)
@@ -96,14 +97,18 @@ for epoch in range(max_epochs):
         # Ascent Step
         predictions = model(inputs.float())
         batch_loss = criterion(predictions, targets)
-        #batch_loss.mean().backward()
-        #minimizer.ascent_step()
-        batch_loss.backward()
-        optimizer.step()
 
-        # Descent Step
-        #criterion(model(inputs.float()), targets).mean().backward()
-        #minimizer.descent_step()
+
+         # compute gradients of this batch.
+        (batch_loss / gradient_accumulations).backward()
+        # so each parameter holds its gradient value now,
+        # and when we run `loss.backward()` again in next batch iteration,
+        # then the previous gradient computed and the current one will be added.
+        # this is the default behaviour of gradients in pytorch.
+
+        if (batch_idx + 1) % gradient_accumulations == 0:
+            optimizer.step()
+            model.zero_grad()
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
