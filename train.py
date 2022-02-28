@@ -32,7 +32,7 @@ params = {'batch_size':4,
           'shuffle': shuffle,
           'num_workers': 4}
 max_epochs = 250
-gradient_accumulations = 7
+gradient_accumulations = 4
 
 #Data Generators
 dataset = 'TinyVirat'
