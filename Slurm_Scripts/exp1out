@@ -1,0 +1,32 @@
+Please run `conda env list` to see a list of all available environments. Use
+`source activate <env>` to activate the environment '<env>'. 
+Using CUDA....
+Creating params....
+Initiating Model...
+Spatial embed dimension 32
+Temporal embed dim: 32
+Drop Rate:  0.0
+Attn drop rate:  0.0
+Drop path rate:  0.1
+Tubelet dim:  (3, 4, 4, 4)
+Begin Training....
+  0%|          | 0/2114 [00:00<?, ?it/s]  0%|          | 0/2114 [00:02<?, ?it/s]
+Inputs shape:  torch.Size([8, 25, 3, 4, 128, 128])
+Traceback (most recent call last):
+  File "../train.py", line 97, in <module>
+    predictions = model(inputs.float())
+  File "/home/mijaz/.local/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/lustre/fs0/home/mijaz/TinyActions/Model/ViViT_FE.py", line 158, in forward
+    x = self.Spatial_forward_features(x,self.spat_op) # b x nc x Se
+  File "/lustre/fs0/home/mijaz/TinyActions/Model/ViViT_FE.py", line 115, in Spatial_forward_features
+    x = blk(x)
+  File "/home/mijaz/.local/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/lustre/fs0/home/mijaz/TinyActions/Model/model_utils.py", line 145, in forward
+    x = x + self.drop_path(self.attn(self.norm1(x)))
+  File "/home/mijaz/.local/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/lustre/fs0/home/mijaz/TinyActions/Model/model_utils.py", line 50, in forward
+    attn = (q @ k.transpose(-2, -1)) * self.scale
+RuntimeError: CUDA out of memory. Tried to allocate 6.26 GiB (GPU 0; 15.78 GiB total capacity; 13.30 GiB already allocated; 1.16 GiB free; 13.31 GiB reserved in total by PyTorch)

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model_utils import Block
+from .model_utils import Block
 '''
 H =img height
 W = img width

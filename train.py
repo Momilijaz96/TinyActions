@@ -28,7 +28,7 @@ vid_dim=(img_res,img_res,NUM_CLIPS) #one sample dimension - (H,W,T)
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':16,
+params = {'batch_size':8,
           'shuffle': shuffle,
           'num_workers': 4}
 max_epochs = 250
