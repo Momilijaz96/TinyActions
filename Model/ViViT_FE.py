@@ -1,4 +1,3 @@
-
 from functools import partial
 from einops import rearrange, repeat
 import numpy as np
@@ -6,10 +5,21 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from model_utils import Block
+'''
+H =img height
+W = img width
+T = video time
+tw = tubelet width
+th = tubelet height
+tt = tubelet time
+h = H/th
+w = W/tw # h*w: numner of tubelets with unique spatial index
+nb = T/tt #number of blocks or tubelets with unique temporal index
+'''
 
 
 class ViViT_FE(nn.Module):
-    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,1000),
+    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, spat_op='cls', tubelet_dim=(3,4,4,4),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
@@ -27,7 +37,7 @@ class ViViT_FE(nn.Module):
             attn_drop_rate (float): attention dropout rate
             drop_path_rate (float): stochastic depth rate
             norm_layer: (nn.Module): normalization layer
-            tubelet_dim(tuple): tubelet size (ch,t,h,w)
+            tubelet_dim(tuple): tubelet size (ch,tt,th,tw)
             vid_dim: Original video (H , W, T)
         """
         super().__init__()
@@ -84,13 +94,13 @@ class ViViT_FE(nn.Module):
 
     def Spatial_forward_features(self, x, spat_op='cls'):
         #spat_op: 'cls' output is CLS token, otherwise global average pool of attention encoded spatial features
-        
+
         #Input shape: batch x num_clips x H x W x (tube tempo dim * 3)
         b,nc,ch,H,W,t = x.shape
         x = rearrange(x, 'b nc ch H W t  -> (b nc) ch H W t', ) #for spatial transformer, batch size if b*f
         x = self.Spatial_patch_to_embedding(x) #all input spatial tokens, op: (b nc) x H/h x W/w x Se
 
-        #Reshape input to pass through embedding layer
+        #Reshape input to pass through encoder blocks
         _,Se,h,w,_ = x.shape
         x = torch.reshape(x,(b*nc,-1,Se)) #batch x num_spatial_tokens(s) x spat_embed_dim
         _,s,_ = x.shape
@@ -140,7 +150,8 @@ class ViViT_FE(nn.Module):
 
     def forward(self, x):
         x = x.permute(0,1,2,4,5,3)
-        #Input x: batch x num_clips x num_chan x img_height x img_width x tublet_time
+        #Input x: batch x num_clips x num_chans x img_height x img_width x tubelet_time
+        #nc should be T/tt
         b , nc, ch, H, W, t = x.shape
         
         #Reshape input to pass through Conv3D patch embedding
@@ -148,9 +159,10 @@ class ViViT_FE(nn.Module):
         x = self.Temporal_forward_features(x)
         x = self.class_head(x)
         return F.log_softmax(x,dim=1) 
+
 '''
 model=ViViT_FE()
-inp=torch.randn((1, 25, 3, 128 , 128 ,4))
+inp=torch.randn((1, 250, 3, 128 , 128 ,4))
 op=model(inp)
 print("Op shape: ",op.shape)
 '''

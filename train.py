@@ -2,7 +2,8 @@ import torch
 import numpy as np
 from Model.ViViT_FE import ViViT_FE
 from configuration import build_config
-from dataloader import TinyVirat
+from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from utils.visualize import get_plot
@@ -16,6 +17,14 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
 torch.backends.cudnn.benchmark = True
 
+#Data parameters
+tubelet_dim=(3,4,4,4) #(ch,tt,th,tw)
+num_classes=26  
+img_res = 128
+vid_dim=(img_res,img_res,NUM_CLIPS) #one sample dimension - (H,W,T)
+
+
+
 # Training Parameters
 shuffle = True
 print("Creating params....")
@@ -27,21 +36,16 @@ max_epochs = 250
 #Data Generators
 dataset = 'TinyVirat'
 cfg = build_config(dataset)
-clip_length = 100
-img_res = 128
 skip_frames=2
-train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames=clip_length, skip_frames=2, input_size=img_res)
+
+train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames=tubelet_dim[1], skip_frames=2, input_size=img_res)
 training_generator = DataLoader(train_dataset,**params)
 
-val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames=clip_length, skip_frames=2, input_size=img_res)
+val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames=tubelet_dim[1], skip_frames=2, input_size=img_res)
 validation_generator = DataLoader(val_dataset, **params)
 
 #Define model
 print("Initiating Model...")
-num_classes=26
-vid_dim=(img_res,img_res,clip_length) #one sample dimension
-
-tubelet_dim=(3,4,4,4)
 
 spat_op='cls' #or GAP
 

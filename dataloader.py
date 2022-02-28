@@ -11,6 +11,10 @@ from tqdm import tqdm
 import time
 
 
+VIDEO_LENGTH= 100 #num of frames in every video
+TUBELET_TIME = 4
+NUM_CLIPS = VIDEO_LENGTH // TUBELET_TIME
+
 def resize(frames, size, interpolation='bilinear'):
     scale = None
     if isinstance(size, int):
@@ -168,7 +172,7 @@ class TinyVirat(Dataset):
         else:
             video_labels = self.annotations[video_id]['label']
         if self.data_split == 'train':
-            clips = self.build_random_clip(video_path)
+            clips = self.build_consecutive_clips(video_path)
         else:
             clips = self.build_consecutive_clips(video_path)
             
@@ -178,26 +182,36 @@ class TinyVirat(Dataset):
         label = np.zeros(self.num_classes)
         for _class in video_labels:
             label[self.class_labels.index(_class)] = 1
-        return clips, label
+        #Make sure sample has NUM_CLIPS clips
+        if clips.shape[0] < NUM_CLIPS:
+            last_clip = clips[-1,:,:,:,:]
+            last_clip = last_clip.cpu().detach().numpy()
+            diff = NUM_CLIPS - clips.shape[0]
+            rem_clips = np.tile(last_clip,(diff,1,1,1,1))
+            rem_clips = torch.from_numpy(rem_clips)
+            clips = torch.cat((clips,rem_clips),dim=0)
+        elif clips.shape[0] > NUM_CLIPS:
+            clips = clips[:NUM_CLIPS,:,:,:,:]
+        return clips, label #clips: nc x ch x t x H x W
 '''
 if __name__ == '__main__':
     shuffle = True
     batch_size = 1
 
-    dataset = 'TinyVirat'
+    dataset = 'TinyVirat-d'
     cfg = build_config(dataset)
 
-    data_generator = TinyVirat(cfg, 'val', 1.0, num_frames=16, skip_frames=2, input_size=112)
+    data_generator = TinyVirat(cfg, 'train', 1.0, num_frames=4, skip_frames=2, input_size=128)
     dataloader = DataLoader(data_generator, batch_size, shuffle=shuffle, num_workers=0)
 
     start = time.time()
-
     for epoch in range(0, 1):
         for i, (clips, labels) in enumerate(tqdm(dataloader)):
             clips = clips.data.numpy()
             labels = labels.data.numpy()
             print(clips.shape)
             print(labels.shape)
-            break
+            if i==10:
+                break
     print("time taken : ", time.time() - start)
 '''
