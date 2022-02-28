@@ -18,10 +18,10 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 torch.backends.cudnn.benchmark = True
 
 #Data parameters
-tubelet_dim=(3,4,4,4) #(ch,tt,th,tw)
+tubelet_dim=(3,TUBELET_TIME,4,4) #(ch,tt,th,tw)
 num_classes=26  
 img_res = 128
-vid_dim=(img_res,img_res,NUM_CLIPS) #one sample dimension - (H,W,T)
+vid_dim=(img_res,img_res,VIDEO_LENGTH) #one sample dimension - (H,W,T)
 
 
 
@@ -32,7 +32,7 @@ params = {'batch_size':4,
           'shuffle': shuffle,
           'num_workers': 4}
 max_epochs = 250
-gradient_accumulations = 2
+gradient_accumulations = 1
 
 #Data Generators
 dataset = 'TinyVirat'
@@ -89,13 +89,14 @@ for epoch in range(max_epochs):
     cnt = 0.
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
-        print("Inputs shape: ",inputs.shape)
+        print("targets : ",targets)
         targets = targets.to(device)
 
         optimizer.zero_grad()
 
         # Ascent Step
-        predictions = model(inputs.float())
+        predictions = model(inputs.float()); targets = torch.tensor(targets,dtype=torch.long)
+
         batch_loss = criterion(predictions, targets)
 
 
