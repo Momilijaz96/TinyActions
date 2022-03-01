@@ -11,11 +11,11 @@ from sklearn.metrics import accuracy_score
 exp='1'
 
 def compute_accuracy(pred,target,inf_th):
-    pred = pred.cpu().data.numpy()
+    pred = pred
     target = target.cpu().data.numpy()
     #Pass pred through sigmoid
     pred = torch.sigmoid(pred)
-
+    pred = pred.cpu().data.numpy()
     #Use inference throughold to get one hot encoded labels
     pred = pred > inf_th
 
