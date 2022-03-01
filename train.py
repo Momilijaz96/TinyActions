@@ -7,7 +7,7 @@ from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from utils.visualize import get_plot
-
+from sklearn.metrics import accuracy_score
 exp='1'
 
 #CUDA for PyTorch
@@ -24,7 +24,6 @@ img_res = 128
 vid_dim=(img_res,img_res,VIDEO_LENGTH) #one sample dimension - (H,W,T)
 
 
-
 # Training Parameters
 shuffle = True
 print("Creating params....")
@@ -33,6 +32,7 @@ params = {'batch_size':4,
           'num_workers': 4}
 max_epochs = 250
 gradient_accumulations = 1
+inf_threshold = 0.7
 
 #Data Generators
 dataset = 'TinyVirat'
@@ -56,7 +56,7 @@ model=model.to(device)
 #Define loss and optimizer
 lr=0.01
 wt_decay=5e-4
-criterion=torch.nn.CrossEntropyLoss()
+criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9,weight_decay=wt_decay)
 #optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wt_decay)
 
@@ -79,7 +79,7 @@ epoch_acc_val=[]
 #Label smoothing
 #smoothing=0.1
 #criterion = LabelSmoothingCrossEntropy(smoothing=smoothing)
-
+best_accuracy = 0.
 print("Begin Training....")
 for epoch in range(max_epochs):
     # Train
@@ -89,13 +89,13 @@ for epoch in range(max_epochs):
     cnt = 0.
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
-        print("targets : ",targets)
+        #print("Targets shape : ",targets.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
 
         # Ascent Step
-        predictions = model(inputs.float()); targets = torch.tensor(targets,dtype=torch.long)
+        predictions = model(inputs.float()); #targets = torch.tensor(targets,dtype=torch.long); predictions = torch.tensor(predictions,dtype=torch.long)
 
         batch_loss = criterion(predictions, targets)
 
@@ -113,11 +113,11 @@ for epoch in range(max_epochs):
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
-            accuracy += (torch.argmax(predictions, 1) == targets).sum().item()
+            accuracy +=  ((predictions>inf_threshold)== targets).sum().item() #accuracy += (torch.argmax(predictions, 1) == targets).sum().item()
         cnt += len(targets)
         scheduler.step()
 
-    loss /= cnt
+    loss /= cnt; print("predictions shape: ",predictions.shape); print("count: ",cnt); print("accuracy: ",accuracy)
     accuracy *= 100. / cnt
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
@@ -135,7 +135,7 @@ for epoch in range(max_epochs):
             targets = targets.cuda()
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
-            accuracy += (torch.argmax(predictions, 1) == targets).sum().item()
+            accuracy += ((predictions>inf_threshold)==targets).sum().item()  #(torch.argmax(predictions, 1) == targets).sum().item()
             cnt += len(targets)
         loss /= cnt
         accuracy *= 100. / cnt

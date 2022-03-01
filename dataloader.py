@@ -193,6 +193,7 @@ class TinyVirat(Dataset):
         elif clips.shape[0] > NUM_CLIPS:
             clips = clips[:NUM_CLIPS,:,:,:,:]
         return clips, label #clips: nc x ch x t x H x W
+
 '''
 if __name__ == '__main__':
     shuffle = True

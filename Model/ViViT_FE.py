@@ -158,7 +158,7 @@ class ViViT_FE(nn.Module):
         x = self.Spatial_forward_features(x,self.spat_op) # b x nc x Se
         x = self.Temporal_forward_features(x)
         x = self.class_head(x)
-        return F.log_softmax(x,dim=1) 
+        return x #F.log_softmax(x,dim=1) 
 
 '''
 model=ViViT_FE()
