@@ -128,7 +128,7 @@ for epoch in range(max_epochs):
         scheduler.step()
 
     loss /= cnt; 
-    accuracy /= batch_idx
+    accuracy /= (batch_idx+1)
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
     epoch_acc_train.append(accuracy)
@@ -140,15 +140,15 @@ for epoch in range(max_epochs):
     accuracy = 0.
     cnt = 0.
     with torch.no_grad():
-        for inputs, targets in validation_generator:
+        for batch_idx, (inputs, targets) in enumerate(validation_generator):
             inputs = inputs.cuda()
             targets = targets.cuda()
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
-            accuracy += ((predictions>inf_threshold)==targets).sum().item()  #(torch.argmax(predictions, 1) == targets).sum().item()
+            accuracy += compute_accuracy(predictions,targets)
             cnt += len(targets)
         loss /= cnt
-        accuracy *= 100. / cnt
+        accuracy /= (batch_idx+1)
 
     if best_accuracy < accuracy:
        best_accuracy = accuracy
