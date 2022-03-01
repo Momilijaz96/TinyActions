@@ -11,6 +11,8 @@ from sklearn.metrics import accuracy_score
 exp='1'
 
 def compute_accuracy(pred,target,inf_th):
+    pred = pred.cpu().data.numpy()
+    target = target.cpu().data.numpy()
     #Pass pred through sigmoid
     pred = torch.sigmoid(pred)
 
