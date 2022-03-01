@@ -123,7 +123,7 @@ for epoch in range(max_epochs):
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
-            accuracy +=  compute_accuracy(predictions,targets)
+            accuracy +=  compute_accuracy(predictions,targets,inf_threshold)
         cnt += len(targets) #number of samples
         scheduler.step()
 
@@ -145,7 +145,7 @@ for epoch in range(max_epochs):
             targets = targets.cuda()
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
-            accuracy += compute_accuracy(predictions,targets)
+            accuracy += compute_accuracy(predictions,targets,inf_threshold)
             cnt += len(targets)
         loss /= cnt
         accuracy /= (batch_idx+1)
