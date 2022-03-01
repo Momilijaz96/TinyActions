@@ -10,6 +10,16 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 exp='1'
 
+def compute_accuracy(pred,target,inf_th):
+    #Pass pred through sigmoid
+    pred = torch.sigmoid(pred)
+
+    #Use inference throughold to get one hot encoded labels
+    pred = pred > inf_th
+
+    #Compute equal labels
+    return accuracy_score(pred,target)
+
 #CUDA for PyTorch
 print("Using CUDA....")
 
@@ -113,12 +123,12 @@ for epoch in range(max_epochs):
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
-            accuracy +=  ((predictions>inf_threshold)== targets).sum().item() #accuracy += (torch.argmax(predictions, 1) == targets).sum().item()
-        cnt += len(targets)
+            accuracy +=  compute_accuracy(predictions,targets)
+        cnt += len(targets) #number of samples
         scheduler.step()
 
-    loss /= cnt; print("predictions shape: ",predictions.shape); print("count: ",cnt); print("accuracy: ",accuracy)
-    accuracy *= 100. / cnt
+    loss /= cnt; 
+    accuracy /= batch_idx
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
     epoch_acc_train.append(accuracy)
