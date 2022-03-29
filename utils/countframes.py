@@ -9,7 +9,7 @@ frame_count=[]
 # display the frame count to the terminal
 for x in os.walk(path):
     for f in x[2]:
-        file=path+'/'+x[0]+'/'+f
+        file=x[0]+'/'+f
         print(file)
         total = count_frames(file, override=True)
         print("Total frames: ",total)
