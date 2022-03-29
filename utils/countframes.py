@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 # count the total number of frames in the video file
-path = 'TinyVIRAT_v2/videos/train'
+path = '/home/mo926312/Documents/datasets/TinyVIRAT-v2/videos/train'
 
 frame_count=[]
 # display the frame count to the terminal
