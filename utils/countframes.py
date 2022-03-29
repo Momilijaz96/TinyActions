@@ -14,8 +14,8 @@ for x in os.walk(path):
         total = count_frames(file, override=True)
         print("Total frames: ",total)
         frame_count.append(total)
+        break
     break
-break
 
 #Get frame count distribution plot
 plt.figure()
