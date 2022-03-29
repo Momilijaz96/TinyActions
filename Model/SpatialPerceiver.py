@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .model_utils import Block
+from .model_utils import Block,PBlock
 '''
 H =img height
 W = img width
@@ -40,8 +40,10 @@ class Spatial_Perceiver(nn.Module):
         """
         super().__init__()
 
-        norm_layer = norm_layer or partial(nn.LayerNorm, eps=1e-6) 
-        temporal_embed_dim = perceiver_query_dim[1]   #### one temporal token embedding dimension is equal to one token 
+        norm_layer = norm_layer or partial(nn.LayerNorm, eps=1e-6)
+        query_tokens = perceiver_query_dim[0]
+        query_token_dim = perceiver_query_dim[1] 
+        temporal_embed_dim = query_token_dim   #### one temporal token embedding dimension is equal to one token 
         print("Spatial embed dimension",spatial_embed_dim)
         print("Temporal embed dim:", temporal_embed_dim)
         print("Drop Rate: ",drop_rate)
@@ -53,15 +55,16 @@ class Spatial_Perceiver(nn.Module):
         self.tubelet_dim=tubelet_dim
 
         ### spatial patch embedding
+        
         self.Spatial_patch_to_embedding = nn.Conv3d(c, spatial_embed_dim, self.tubelet_dim[1:],
                                         stride=self.tubelet_dim[1:],padding='valid',dilation=1)
         num_spat_tokens = (vid_dim[0]//th) * (vid_dim[1]//tw)
         self.Spatial_pos_embed = nn.Parameter(torch.zeros(1, num_spat_tokens, spatial_embed_dim)) #num joints + 1 for cls token
 
-        self.tubelet_query = nn.Parameter(torch.zeros(1,1,perceiver_query_dim)) #Learnable query vector to attend to all spatial tubelets. N x D
-        self.query_pos_embed = nn.Parameter(torch.zeros(1,perceiver_query_dim)) #num of query_tokens, query_tokens_dim
+        self.tubelet_query = nn.Parameter(torch.zeros(1,query_tokens,query_token_dim)) #Learnable query vector to attend to all spatial tubelets. N x D
+        self.query_pos_embed = nn.Parameter(torch.zeros(1,query_tokens,query_token_dim)) #num of query_tokens, query_tokens_dim
         
-        num_temp_tokens=perceiver_query_dim[0]
+        num_temp_tokens = vid_dim[-1] // tt
         self.Temporal_pos_embed = nn.Parameter(torch.zeros(1, num_temp_tokens+1, temporal_embed_dim)) #additional pos embedding zero for class token
         self.temporal_cls_token = nn.Parameter(torch.zeros(1, 1, temporal_embed_dim)) #temporal class token patch embed - this token is used for final classification!
         self.pos_drop = nn.Dropout(p=drop_rate)
@@ -86,12 +89,12 @@ class Spatial_Perceiver(nn.Module):
 
         #Classification head
         self.class_head = nn.Sequential(
-            nn.LayerNorm(spatial_embed_dim),
+            nn.LayerNorm(temporal_embed_dim),
             nn.Linear(temporal_embed_dim, num_classes)
         )
 
 
-    def Spatial_Perceiver_forward_features(self, x, spat_op='cls'):
+    def Spatial_Perceiver_forward_features(self, x):
         #Input shape: batch x num_clips x H x W x (tube tempo dim * 3)
         b,nc,ch,H,W,t = x.shape
         x = rearrange(x, 'b nc ch H W t  -> (b nc) ch H W t', ) #for spatial transformer, batch size if b*f
@@ -128,6 +131,8 @@ class Spatial_Perceiver(nn.Module):
         b  = x.shape[0]
         class_token=torch.tile(self.temporal_cls_token,(b,1,1)) #(B,1,temp_embed_dim)
         x = torch.cat((x,class_token),dim=1) #(B,F+1,temp_embed_dim)
+        print(x.shape)
+        print(self.Temporal_pos_embed.shape)
         x += self.Temporal_pos_embed
 
         x = self.pos_drop(x)
@@ -149,14 +154,14 @@ class Spatial_Perceiver(nn.Module):
         b , nc, ch, H, W, t = x.shape
         
         #Reshape input to pass through Conv3D patch embedding
-        x = self.Spatial_forward_features(x) # input:  b x nc x ch x H x W x t, op: b x nc x query_token_dim
+        x = self.Spatial_Perceiver_forward_features(x) # input:  b x nc x ch x H x W x t, op: b x nc x query_token_dim
         x = self.Temporal_forward_features(x) #input: b x nc x query_token_dim, op: b x temporal_embed_dim
         x = self.class_head(x)
         return x #F.log_softmax(x,dim=1) 
 
-
+"""
 model=Spatial_Perceiver()
-inp=torch.randn((1, 250, 3, 128 , 128 ,4))
+inp=torch.randn((1, 25, 3, 128 , 128 ,4))
 op=model(inp)
 print("Op shape: ",op.shape)
-
+"""
