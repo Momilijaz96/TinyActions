@@ -9,9 +9,13 @@ frame_count=[]
 # display the frame count to the terminal
 for x in os.walk(path):
     for f in x[2]:
-        total = count_frames(path+'/'+x[0]+'/'+f, override=True)
+        file='path+'/'+x[0]+'/'+f'
+        print(file)
+        total = count_frames(file, override=True)
         print("Total frames: ",total)
         frame_count.append(total)
+    break
+break
 
 #Get frame count distribution plot
 plt.figure()
