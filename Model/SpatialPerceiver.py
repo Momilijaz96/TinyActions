@@ -17,9 +17,8 @@ w = W/tw # h*w: numner of tubelets with unique spatial index
 nb = T/tt #number of blocks or tubelets with unique temporal index
 '''
 
-
-class TinyActions_Net(nn.Module):
-    def __init__(self, spatial_embed_dim=32, sdepth=3, tdepth=3, vid_dim=(128,128,?), perceiver_query_dim=(64,32),
+class Spatial_Perceiver(nn.Module):
+    def __init__(self, spatial_embed_dim=32, sdepth=3, tdepth=3, vid_dim=(128,128,100), perceiver_query_dim=(64,32),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, tubelet_dim=(3,4,4,4), 
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
@@ -155,9 +154,9 @@ class TinyActions_Net(nn.Module):
         x = self.class_head(x)
         return x #F.log_softmax(x,dim=1) 
 
-'''
-model=ViViT_FE()
+
+model=Spatial_Perceiver()
 inp=torch.randn((1, 250, 3, 128 , 128 ,4))
 op=model(inp)
 print("Op shape: ",op.shape)
-'''
+
