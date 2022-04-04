@@ -100,6 +100,7 @@ epoch_acc_val=[]
 #Label smoothing
 #smoothing=0.1
 #criterion = LabelSmoothingCrossEntropy(smoothing=smoothing)
+
 best_accuracy = 0.
 print("Begin Training....")
 for epoch in range(max_epochs):
@@ -109,8 +110,9 @@ for epoch in range(max_epochs):
     accuracy = 0.
     cnt = 0.
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
+
         inputs = inputs.to(device)
-        print("Inputs shape : ",inputs.shape)
+        #print("Inputs shape : ",inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
@@ -119,7 +121,6 @@ for epoch in range(max_epochs):
         predictions = model(inputs.float()); #targets = torch.tensor(targets,dtype=torch.long); predictions = torch.tensor(predictions,dtype=torch.long)
 
         batch_loss = criterion(predictions, targets)
-
 
          #compute gradients of this batch.
         (batch_loss / gradient_accumulations).backward()
@@ -138,7 +139,7 @@ for epoch in range(max_epochs):
         cnt += len(targets) #number of samples
         scheduler.step()
 
-    loss /= cnt;
+    loss /= cnt
     accuracy /= (batch_idx+1)
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)

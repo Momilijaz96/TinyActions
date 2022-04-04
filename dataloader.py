@@ -12,7 +12,7 @@ import time
 
 
 VIDEO_LENGTH = 100  #num of frames in every video
-TUBELET_TIME = 4
+TUBELET_TIME = VIDEO_LENGTH
 NUM_CLIPS = VIDEO_LENGTH // TUBELET_TIME
 
 def resize(frames, size, interpolation='bilinear'):
