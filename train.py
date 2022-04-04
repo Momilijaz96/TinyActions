@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from Model.ViViT_FE import ViViT_FE
+from Model.SpatialPerceiver import Spatial_Perceiver
 from configuration import build_config
 from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 
@@ -8,7 +8,15 @@ from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
-exp='1'
+import os
+
+exp='6'
+
+#Make exp dir
+if not os.path.exists('exps/exp_'+exp+'/'):
+    os.makedirs('exps/exp_'+exp+'/')
+PATH='exps/exp_'+exp+'/'
+
 
 def compute_accuracy(pred,target,inf_th):
     pred = pred
@@ -31,7 +39,7 @@ torch.backends.cudnn.benchmark = True
 
 #Data parameters
 tubelet_dim=(3,TUBELET_TIME,4,4) #(ch,tt,th,tw)
-num_classes=26  
+num_classes=26
 img_res = 128
 vid_dim=(img_res,img_res,VIDEO_LENGTH) #one sample dimension - (H,W,T)
 
@@ -39,12 +47,14 @@ vid_dim=(img_res,img_res,VIDEO_LENGTH) #one sample dimension - (H,W,T)
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':4,
+params = {'batch_size':8,
           'shuffle': shuffle,
           'num_workers': 4}
+
 max_epochs = 250
 gradient_accumulations = 1
-inf_threshold = 0.7
+inf_threshold = 0.6
+print(params)
 
 #Data Generators
 dataset = 'TinyVirat'
@@ -60,16 +70,15 @@ validation_generator = DataLoader(val_dataset, **params)
 #Define model
 print("Initiating Model...")
 
-spat_op='cls' #or GAP
 
-model=ViViT_FE(vid_dim=vid_dim,num_classes=num_classes,tubelet_dim=tubelet_dim,spat_op=spat_op)
+model=Spatial_Perceiver()
 model=model.to(device)
 
 #Define loss and optimizer
 lr=0.01
 wt_decay=5e-4
 criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
-optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9,weight_decay=wt_decay)
+optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
 #optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wt_decay)
 
 '''
@@ -94,25 +103,25 @@ epoch_acc_val=[]
 best_accuracy = 0.
 print("Begin Training....")
 for epoch in range(max_epochs):
-    # Train
+    #Train
     model.train()
     loss = 0.
     accuracy = 0.
     cnt = 0.
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
-        #print("Targets shape : ",targets.shape)
+        print("Inputs shape : ",inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
 
-        # Ascent Step
+        #Ascent Step
         predictions = model(inputs.float()); #targets = torch.tensor(targets,dtype=torch.long); predictions = torch.tensor(predictions,dtype=torch.long)
 
         batch_loss = criterion(predictions, targets)
 
 
-         # compute gradients of this batch.
+         #compute gradients of this batch.
         (batch_loss / gradient_accumulations).backward()
         # so each parameter holds its gradient value now,
         # and when we run `loss.backward()` again in next batch iteration,
@@ -129,7 +138,7 @@ for epoch in range(max_epochs):
         cnt += len(targets) #number of samples
         scheduler.step()
 
-    loss /= cnt; 
+    loss /= cnt;
     accuracy /= (batch_idx+1)
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
@@ -153,24 +162,24 @@ for epoch in range(max_epochs):
         accuracy /= (batch_idx+1)
 
     if best_accuracy < accuracy:
-       best_accuracy = accuracy
+       best_accuracy = accuracy; torch.save(model.state_dict(),PATH+exp+'_best_ckpt.pt');
 
     print(f"Epoch: {epoch}, Test accuracy:  {accuracy:6.2f} %, Test loss:  {loss:8.5f}")
     epoch_loss_val.append(loss)
     epoch_acc_val.append(accuracy)
-    torch.save(model,exp+"_Last_epoch.pt")
+    #torch.save(model,exp+"_Last_epoch.pt")
     
     epoch_loss_val.append(loss)
     epoch_acc_val.append(accuracy)
-    torch.save(model,exp+"_Last_epoch.pt")
+    #torch.save(model,exp+"_Last_epoch.pt")
 
 
 print(f"Best test accuracy: {best_accuracy}")
 print("TRAINING COMPLETED :)")
 
 #Save visualization
-get_plot(epoch_acc_train,epoch_acc_val,'Accuracy-'+exp,'Train Accuracy','Val Accuracy','Epochs','Acc')
-get_plot(epoch_loss_train,epoch_loss_val,'Loss-'+exp,'Train Loss','Val Loss','Epochs','Loss')
+get_plot(PATH,epoch_acc_train,epoch_acc_val,'Accuracy-'+exp,'Train Accuracy','Val Accuracy','Epochs','Acc')
+get_plot(PATH,epoch_loss_train,epoch_loss_val,'Loss-'+exp,'Train Loss','Val Loss','Epochs','Loss')
 
 #Save trained model
 torch.save(model,exp+"_ckpt.pt")

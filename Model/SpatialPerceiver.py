@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .model_utils import Block,PBlock
+
 '''
 H =img height
 W = img width
@@ -18,7 +19,7 @@ nb = T/tt #number of blocks or tubelets with unique temporal index
 '''
 
 class Spatial_Perceiver(nn.Module):
-    def __init__(self, spatial_embed_dim=32, sdepth=3, tdepth=3, vid_dim=(128,128,100), perceiver_query_dim=(64,32),
+    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100), perceiver_query_dim=(64,32),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, tubelet_dim=(3,4,4,4), 
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
@@ -42,8 +43,8 @@ class Spatial_Perceiver(nn.Module):
 
         norm_layer = norm_layer or partial(nn.LayerNorm, eps=1e-6)
         query_tokens = perceiver_query_dim[0]
-        query_token_dim = perceiver_query_dim[1] 
-        temporal_embed_dim = query_token_dim   #### one temporal token embedding dimension is equal to one token 
+        query_token_dim = perceiver_query_dim[1]
+        temporal_embed_dim = query_token_dim   #### one temporal token embedding dimension is equal to one token
         print("Spatial embed dimension",spatial_embed_dim)
         print("Temporal embed dim:", temporal_embed_dim)
         print("Drop Rate: ",drop_rate)
@@ -55,9 +56,9 @@ class Spatial_Perceiver(nn.Module):
         self.tubelet_dim=tubelet_dim
 
         ### spatial patch embedding
-        
-        self.Spatial_patch_to_embedding = nn.Conv3d(c, spatial_embed_dim, self.tubelet_dim[1:],
-                                        stride=self.tubelet_dim[1:],padding='valid',dilation=1)
+
+        self.Spatial_patch_to_embedding = nn.Linear(c,spatial_embed_dim) #nn.Conv3d(c, spatial_embed_dim, self.tubelet_dim[1:],
+                                        #stride=self.tubelet_dim[1:],padding='valid',dilation=1)
         num_spat_tokens = (vid_dim[0]//th) * (vid_dim[1]//tw)
         self.Spatial_pos_embed = nn.Parameter(torch.zeros(1, num_spat_tokens, spatial_embed_dim)) #num joints + 1 for cls token
 
