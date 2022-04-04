@@ -104,15 +104,16 @@ epoch_acc_val=[]
 best_accuracy = 0.
 print("Begin Training....")
 for epoch in range(max_epochs):
+    
     #Train
     model.train()
     loss = 0.
     accuracy = 0.
     cnt = 0.
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
-
+        
         inputs = inputs.to(device)
-        #print("Inputs shape : ",inputs.shape)
+        print("Inputs shape : ",inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
