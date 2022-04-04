@@ -133,7 +133,6 @@ class Spatial_Perceiver(nn.Module):
         class_token=torch.tile(self.temporal_cls_token,(b,1,1)) #(B,1,temp_embed_dim)
         x = torch.cat((x,class_token),dim=1) #(B,F+1,temp_embed_dim)
         
-        
         x += self.Temporal_pos_embed
 
         x = self.pos_drop(x)
