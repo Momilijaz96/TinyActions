@@ -80,12 +80,12 @@ criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
 #optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wt_decay)
 
-'''
+
 #ASAM
 rho=0.5
 eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
-'''
+
 
 # Learning Rate Scheduler
 #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
@@ -109,6 +109,7 @@ for epoch in range(max_epochs):
     loss = 0.
     accuracy = 0.
     cnt = 0.
+
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         
         inputs = inputs.to(device)
@@ -117,15 +118,15 @@ for epoch in range(max_epochs):
 
         optimizer.zero_grad()
 
-        #Ascent Step
-        predictions = model(inputs.float()); #targets = torch.tensor(targets,dtype=torch.long); predictions = torch.tensor(predictions,dtype=torch.long)
-
+        # Ascent Step
+        predictions = model(inputs.float())
         batch_loss = criterion(predictions, targets)
+        batch_loss.mean().backward()
+        minimizer.ascent_step()
 
-         #compute gradients of this batch.
-        batch_loss.backward()
-        optimizer.step()
-        model.zero_grad()
+        # Descent Step
+        criterion(model(inputs.float()), targets).mean().backward()
+        minimizer.descent_step()
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
