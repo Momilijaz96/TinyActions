@@ -151,9 +151,10 @@ class Spatial_Perceiver(nn.Module):
     def forward(self, x):
                 
         #Input x: batch x num_chans x video_time x img_height x img_width 
-        
+        if x.shape[0]==6:
+            x = torch.squeeze(x)
         b, ch, t, H, W = x.shape
-        #x = torch.squeeze(x)
+        
  
         #Reshape frames into patches
         patch_size = self.patch_dim[0]*self.patch_dim[1]*self.patch_dim[2]
