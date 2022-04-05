@@ -156,7 +156,7 @@ class Spatial_Perceiver(nn.Module):
         #Reshape frames into patches
         patch_size = self.patch_dim[0]*self.patch_dim[1]*self.patch_dim[2]
         x = torch.reshape(x,(b,t,-1,patch_size))
-        #print("Spatial Perceiver input shape: ",x.shape)
+        print("Spatial Perceiver input shape: ",x.shape)
 
         #Reshape input to pass through Conv3D patch embedding
         x = self.Spatial_Perceiver_forward_features(x) # input:  b x nc x ch x H x W x t, op: b x nc x query_token_dim
