@@ -113,7 +113,7 @@ for epoch in range(max_epochs):
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         
         inputs = inputs.to(device)
-        print("Inputs shape : ",inputs.shape)
+        #print("Inputs shape : ",inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
