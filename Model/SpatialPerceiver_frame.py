@@ -20,9 +20,9 @@ nb = T/tt #number of blocks or tubelets with unique temporal index
 '''
 
 class Spatial_Perceiver(nn.Module):
-    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100), perceiver_query_dim=(64,32),
+    def __init__(self, spatial_embed_dim=64, sdepth=4, tdepth=4, vid_dim=(128,128,100), perceiver_query_dim=(128,64),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, patch_dim = (3,4,4), #tubelet_dim=(3,100,4,4),
-                 drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
+                 drop_rate=0.005, attn_drop_rate=0.005, drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
         Args:
             in_chans (int): number of input channels, RGB videos have 3 chanels

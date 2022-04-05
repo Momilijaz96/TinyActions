@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH -p gpu
 #SBATCH --gres=gpu:2
-#SBATCH -C gmem16
+#SBATCH -C gmem24
 #SBATCH -c 6
 #SBATCH --mem=40000
-#SBATCH -o exp9out
-#SBATCH --job-name=exp9
+#SBATCH -o exp12out
+#SBATCH --job-name=exp12
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
 

@@ -3,6 +3,7 @@ import numpy as np
 from Model.SpatialPerceiver_frame import Spatial_Perceiver
 from configuration import build_config
 from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from asam import ASAM, SAM
 
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -10,7 +11,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='9'
+exp='12'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -47,7 +48,7 @@ vid_dim=(img_res,img_res,VIDEO_LENGTH) #one sample dimension - (H,W,T)
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':8,
+params = {'batch_size':16,
           'shuffle': shuffle,
           'num_workers': 4}
 
@@ -74,7 +75,7 @@ model=Spatial_Perceiver()
 model=model.to(device)
 
 #Define loss and optimizer
-lr=0.0005
+lr=0.01
 wt_decay=5e-4
 criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
@@ -113,7 +114,7 @@ for epoch in range(max_epochs):
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         
         inputs = inputs.to(device)
-        #print("Inputs shape : ",inputs.shape)
+        #print("Inputs shape : ",inputs)
         targets = targets.to(device)
 
         optimizer.zero_grad()
@@ -147,7 +148,7 @@ for epoch in range(max_epochs):
     cnt = 0.
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(validation_generator):
-            inputs = inputs.cuda()
+            inputs = inputs.cuda(); #print("Validation sample: ",inputs,"target: ",targets)
             targets = targets.cuda()
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
