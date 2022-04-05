@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .model_utils import Block,PBlock
 
+
+
 '''
 H =img height
 W = img width
@@ -124,7 +126,7 @@ class Spatial_Perceiver(nn.Module):
 
         x = torch.mean(x, dim=1) #B x query_embed_dim
         x = torch.reshape(x, (b,t,-1))
-        return x #b x nc x Se
+        return x #b x t x Se
 
     def Temporal_forward_features(self, x):
         
