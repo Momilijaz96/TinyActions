@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def get_plot(A,B,title,lblA,lblB,xlabel='Epochs',ylabel='Mean Loss',savefig=True,showfig=False):
+def get_plot(path,A,B,title,lblA,lblB,xlabel='Epochs',ylabel='Mean Loss',savefig=True,showfig=False):
 	plt.figure()
 	plt.plot(A,'-bo',label=lblA)
 	plt.plot(B,'-ro',label=lblB)
@@ -8,4 +8,4 @@ def get_plot(A,B,title,lblA,lblB,xlabel='Epochs',ylabel='Mean Loss',savefig=True
 	plt.ylabel(ylabel)
 	plt.title(title)
 	plt.legend()
-	plt.savefig(title+'.png')
+	plt.savefig(path+title+'.png')

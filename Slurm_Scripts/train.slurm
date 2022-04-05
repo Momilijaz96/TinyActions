@@ -4,8 +4,8 @@
 #SBATCH -C gmem16
 #SBATCH -c 6
 #SBATCH --mem=40000
-#SBATCH -o exp6out
-#SBATCH --job-name=exp6
+#SBATCH -o exp9out
+#SBATCH --job-name=exp9
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
 

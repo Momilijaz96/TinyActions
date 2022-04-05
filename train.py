@@ -10,7 +10,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='6'
+exp='9'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -52,7 +52,6 @@ params = {'batch_size':8,
           'num_workers': 4}
 
 max_epochs = 250
-gradient_accumulations = 1
 inf_threshold = 0.6
 print(params)
 
@@ -75,7 +74,7 @@ model=Spatial_Perceiver()
 model=model.to(device)
 
 #Define loss and optimizer
-lr=0.01
+lr=0.0005
 wt_decay=5e-4
 criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
@@ -89,7 +88,7 @@ minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 '''
 
 # Learning Rate Scheduler
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
+#scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
@@ -124,28 +123,21 @@ for epoch in range(max_epochs):
         batch_loss = criterion(predictions, targets)
 
          #compute gradients of this batch.
-        (batch_loss / gradient_accumulations).backward()
-        # so each parameter holds its gradient value now,
-        # and when we run `loss.backward()` again in next batch iteration,
-        # then the previous gradient computed and the current one will be added.
-        # this is the default behaviour of gradients in pytorch.
-
-        if (batch_idx + 1) % gradient_accumulations == 0:
-            optimizer.step()
-            model.zero_grad()
+        batch_loss.backward()
+        optimizer.step()
+        model.zero_grad()
 
         with torch.no_grad():
             loss += batch_loss.sum().item()
             accuracy +=  compute_accuracy(predictions,targets,inf_threshold)
         cnt += len(targets) #number of samples
-        scheduler.step()
 
     loss /= cnt
     accuracy /= (batch_idx+1)
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
     epoch_acc_train.append(accuracy)
-    scheduler.step()
+    #scheduler.step()
 
     #Test
     model.eval()
