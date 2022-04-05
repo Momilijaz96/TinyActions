@@ -11,7 +11,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='12'
+exp='13'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -64,7 +64,6 @@ validation_generator = DataLoader(val_dataset, **params)
 #Define model
 print("Initiating Model...")
 
-
 model=Spatial_Perceiver()
 model=model.to(device)
 
@@ -80,7 +79,6 @@ optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=
 rho=0.5
 eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
-
 
 # Learning Rate Scheduler
 #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
@@ -142,7 +140,7 @@ for epoch in range(max_epochs):
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(validation_generator):
             inputs = inputs.cuda(); #print("Validation sample: ",inputs,"target: ",targets)
-            targets = targets.cuda()
+            targets = targets.cuda(); inputs  = torch.squeeze(inputs)
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
             accuracy += compute_accuracy(predictions,targets,inf_threshold)
