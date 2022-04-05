@@ -21,7 +21,7 @@ nb = T/tt #number of blocks or tubelets with unique temporal index
 
 class Spatial_Perceiver(nn.Module):
     def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100), perceiver_query_dim=(64,32),
-                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, patch_dim = (3,4,4), #tubelet_dim=(3,100,4,4), 
+                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, patch_dim = (3,4,4), #tubelet_dim=(3,100,4,4),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
         Args:
@@ -104,7 +104,7 @@ class Spatial_Perceiver(nn.Module):
         x = rearrange(x, 'b t np ps -> (b t) np ps', ) #for spatial transformer, batch size if b*f
         x = self.Spatial_patch_to_embedding(x) #all input spatial tokens, op: (b nc) x H/h x W/w x Se
 
-        print("Spatial embedded op: ",x.shape)
+        #print("Spatial embedded op: ",x.shape)
         #Add pos embedding and drop                        
         x += self.Spatial_pos_embed 
         x = self.pos_drop(x)
@@ -156,7 +156,7 @@ class Spatial_Perceiver(nn.Module):
         #Reshape frames into patches
         patch_size = self.patch_dim[0]*self.patch_dim[1]*self.patch_dim[2]
         x = torch.reshape(x,(b,t,-1,patch_size))
-        print("Spatial Perceiver input shape: ",x.shape)
+        #print("Spatial Perceiver input shape: ",x.shape)
 
         #Reshape input to pass through Conv3D patch embedding
         x = self.Spatial_Perceiver_forward_features(x) # input:  b x nc x ch x H x W x t, op: b x nc x query_token_dim

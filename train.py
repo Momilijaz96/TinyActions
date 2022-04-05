@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from Model.SpatialPerceiver import Spatial_Perceiver
+from Model.SpatialPerceiver_frame import Spatial_Perceiver
 from configuration import build_config
 from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 
