@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model_utils import Block,PBlock
+from .model_utils import Block,PBlock
 
 '''
 H =img height
@@ -166,7 +166,7 @@ class Spatial_Perceiver(nn.Module):
 
 '''
 model=Spatial_Perceiver()
-inp=torch.randn((2, 1, 3, 128 , 128 ,100))
+inp=torch.randn((2, 1, 3, 100, 128 , 128))
 op=model(inp)
 print("Op shape: ",op.shape)
 '''
