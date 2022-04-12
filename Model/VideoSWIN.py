@@ -574,7 +574,8 @@ class SwinTransformer3D(nn.Module):
         x = rearrange(x, 'n d h w c -> n c d h w')
 
         #Added classification mechanism
-        x = rearrange(x,'n c d h w -> n F')
+        n = x.shape[0]
+        x = torch.reshape(x,(n,-1))
         x = self.class_head(x)
         return x
 
