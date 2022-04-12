@@ -73,8 +73,17 @@ model = SwinTransformer3D()
 
 #load weights
 PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
-model.load_state_dict(torch.load(PATH)['state_dict'])
+weights = torch.load(PATH)['state_dict']
+new_state_dict = {}
 
+for key in weights.keys():
+    string_new = ''
+    for item in key.split('.')[1:]:
+        string_new += item + '.'
+    string_new = string_new[:-1]
+    new_state_dict[string_new] = weights[key]
+
+model.load_state_dict(new_state_dict)
 model=model.to(device)
 
 #Define loss and optimizer
