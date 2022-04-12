@@ -70,6 +70,11 @@ print("Initiating Model...")
 
 #model=Spatial_Perceiver()
 model = SwinTransformer3D()
+
+#load weights
+PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
+model.load_state_dict(torch.load(PATH))
+
 model=model.to(device)
 
 #Define loss and optimizer
