@@ -15,7 +15,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='19'
+exp='18'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -74,11 +74,11 @@ model=model.to(device)
 
 
 #Define loss and optimizer
-lr=1e-3
-wt_decay=0.02
+lr=0.02
+wt_decay=5e-4
 criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
-#optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
-optimizer = torch.optim.AdamW(model.parameters(), betas=(0.9, 0.999), lr=lr, weight_decay=wt_decay)
+optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
+#optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wt_decay)
 
 
 #ASAM
@@ -87,7 +87,7 @@ eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 
 # Learning Rate Scheduler
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs,eta_min=0)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
