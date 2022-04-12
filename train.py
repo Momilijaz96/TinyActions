@@ -59,10 +59,10 @@ dataset = 'TinyVirat'
 cfg = build_config(dataset)
 skip_frames = 2
 
-train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
+train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=224)
 training_generator = DataLoader(train_dataset,**params)
 
-val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
+val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=224)
 validation_generator = DataLoader(val_dataset, **params)
 
 #Define model
