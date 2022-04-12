@@ -2,10 +2,11 @@ import torch
 import numpy as np
 #from Model.Sp_frame_shareweights import Spatial_Perceiver
 #from Model.SpatialPerceiver_frame import Spatial_Perceiver
+from Model.VideoSWIN import SwinTransformer3D
+#from Model.ViViT_FE import ViViT_FE
 
-from Model.ViViT_FE import ViViT_FE
 from configuration import build_config
-from dane_dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from asam import ASAM, SAM
 
 from torch.utils.data import Dataset, DataLoader
@@ -14,7 +15,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='17'
+exp='18'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -56,7 +57,7 @@ print(params)
 #Data Generators
 dataset = 'TinyVirat'
 cfg = build_config(dataset)
-skip_frames=2
+skip_frames = 2
 
 train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
 training_generator = DataLoader(train_dataset,**params)
@@ -68,7 +69,7 @@ validation_generator = DataLoader(val_dataset, **params)
 print("Initiating Model...")
 
 #model=Spatial_Perceiver()
-model = ViViT_FE()
+model = SwinTransformer3D()
 model=model.to(device)
 
 #Define loss and optimizer
@@ -108,7 +109,7 @@ for epoch in range(max_epochs):
     cnt = 0.
 
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
-        inputs = inputs.to(device)
+        inputs = inputs.to(device);inputs  = torch.squeeze(inputs)
         #print("train inputs: ", inputs.shape)
         targets = targets.to(device)
 
@@ -116,7 +117,7 @@ for epoch in range(max_epochs):
 
         # Ascent Step
         predictions = model(inputs.float())
-        batch_loss = criterion(predictions, targets)
+        print("Predictions: ", predictions.shape); batch_loss = criterion(predictions, targets)
         batch_loss.mean().backward()
         minimizer.ascent_step()
 
