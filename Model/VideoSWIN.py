@@ -538,6 +538,9 @@ class SwinTransformer3D(nn.Module):
         # add a norm layer for each output
         self.norm = norm_layer(self.num_features)
 
+        #Classification head - dummy layer to load weights - not used
+        self.fc_cls = nn.Linear(768, 400)
+        
 
         self._freeze_stages()
 
@@ -568,7 +571,7 @@ class SwinTransformer3D(nn.Module):
         x = self.norm(x)
         x = rearrange(x, 'n d h w c -> n c d h w')
 
-
+        
         return x
 
     def train(self, mode=True):
