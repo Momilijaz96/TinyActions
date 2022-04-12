@@ -491,6 +491,7 @@ class SwinTransformer3D(nn.Module):
                  norm_layer=nn.LayerNorm,
                  patch_norm=False,
                  frozen_stages=-1,
+                 num_classes=26,
                  use_checkpoint=False):
         super().__init__()
 
@@ -537,6 +538,12 @@ class SwinTransformer3D(nn.Module):
         # add a norm layer for each output
         self.norm = norm_layer(self.num_features)
 
+        #Classification head
+        self.class_head = nn.Sequential(
+            nn.LayerNorm(307200),
+            nn.Linear(307200, num_classes)
+        )
+
         self._freeze_stages()
 
     def _freeze_stages(self):
@@ -566,6 +573,9 @@ class SwinTransformer3D(nn.Module):
         x = self.norm(x)
         x = rearrange(x, 'n d h w c -> n c d h w')
 
+        #Added classification mechanism
+        x = rearrange(x,'n c d h w -> n F')
+        x = self.class_head(x)
         return x
 
     def train(self, mode=True):
