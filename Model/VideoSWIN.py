@@ -641,7 +641,7 @@ class SwinTransformer3D_head(nn.Module):
 
 
 class VideoSWIN3D(nn.Module):
-    def __init__():
+    def __init__(self):
         super().__init__()
         self.backbone = SwinTransformer3D()
         self.head = SwinTransformer3D_head()
