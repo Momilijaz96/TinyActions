@@ -476,7 +476,7 @@ class SwinTransformer3D(nn.Module):
     def __init__(self,
                  pretrained=None,
                  pretrained2d=True,
-                 patch_size=(4,4,4),
+                 patch_size=(2,4,4),
                  in_chans=3,
                  embed_dim=96,
                  depths=[2, 2, 6, 2],
@@ -540,8 +540,8 @@ class SwinTransformer3D(nn.Module):
 
         #Classification head
         self.class_head = nn.Sequential(
-            nn.LayerNorm(307200),
-            nn.Linear(307200, num_classes)
+            nn.LayerNorm(614400),
+            nn.Linear(614400, num_classes)
         )
 
         self._freeze_stages()
