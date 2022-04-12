@@ -601,7 +601,7 @@ class SwinTransformer3D_head(nn.Module):
                  dropout_ratio=0.5,
                  init_std=0.01,
                  **kwargs):
-        super().__init__(num_classes, in_channels, loss_cls, **kwargs)
+        super().__init__()
 
         self.spatial_type = spatial_type
         self.dropout_ratio = dropout_ratio
@@ -641,7 +641,7 @@ class SwinTransformer3D_head(nn.Module):
 
 
 class VideoSWIN3D(nn.Module):
-    def __init__(self):
+    def __init__():
         super().__init__()
         self.backbone = SwinTransformer3D()
         self.head = SwinTransformer3D_head()
