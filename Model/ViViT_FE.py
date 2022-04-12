@@ -19,7 +19,7 @@ nb = T/tt #number of blocks or tubelets with unique temporal index
 
 
 class ViViT_FE(nn.Module):
-    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,100),
+    def __init__(self, spatial_embed_dim=32, sdepth=4, tdepth=4, vid_dim=(128,128,52),
                  num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, spat_op='cls', tubelet_dim=(3,4,4,4),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,  norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
@@ -61,7 +61,7 @@ class ViViT_FE(nn.Module):
         self.Spatial_pos_embed = nn.Parameter(torch.zeros(1, num_spat_tokens+1, spatial_embed_dim)) #num joints + 1 for cls token
         self.spatial_cls_token= nn.Parameter(torch.zeros(1,1,spatial_embed_dim)) #spatial cls token patch embed
         self.spat_op = spat_op
-        
+
         num_temp_tokens=vid_dim[-1] // tt
         self.Temporal_pos_embed = nn.Parameter(torch.zeros(1, num_temp_tokens+1, temporal_embed_dim)) #additional pos embedding zero for class token
         self.temporal_cls_token = nn.Parameter(torch.zeros(1, 1, temporal_embed_dim)) #temporal class token patch embed - this token is used for final classification!
@@ -155,7 +155,7 @@ class ViViT_FE(nn.Module):
         b , nc, ch, H, W, t = x.shape
         
         #Reshape input to pass through Conv3D patch embedding
-        x = self.Spatial_forward_features(x,self.spat_op) # b x nc x Se
+        x = self.Spatial_forward_features(x,self.spat_op); #print("spatial output: ", x.shape) # b x nc x Se
         x = self.Temporal_forward_features(x)
         x = self.class_head(x)
         return x #F.log_softmax(x,dim=1) 

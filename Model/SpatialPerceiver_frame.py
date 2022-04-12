@@ -22,7 +22,7 @@ nb = T/tt #number of blocks or tubelets with unique temporal index
 
 class Spatial_Perceiver(nn.Module):
     def __init__(self, spatial_embed_dim=64, sdepth=4, tdepth=4, vid_dim=(128,128,100), perceiver_query_dim=(128,64),
-                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, patch_dim = (3,4,4),
+                 num_heads=8, mlp_ratio=2., qkv_bias=True, qk_scale=None, patch_dim = (3,8,8),
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1, norm_layer=None, num_classes=26):
         """    ##########hybrid_backbone=None, representation_size=None,
         Args:

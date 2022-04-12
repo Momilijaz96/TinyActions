@@ -118,7 +118,7 @@ class Spatial_Perceiver(nn.Module):
 
         #Pass through transformer blocks
         blk = self.Spatial_blocks[0]
-        for _ in self.sdepth:
+        for _ in range(self.sdepth):
             latent_query = blk(xq=latent_query, xkv=x)
 
         x = latent_query

@@ -1,8 +1,11 @@
 import torch
 import numpy as np
-from Model.SpatialPerceiver_frame import Spatial_Perceiver
+#from Model.Sp_frame_shareweights import Spatial_Perceiver
+#from Model.SpatialPerceiver_frame import Spatial_Perceiver
+
+from Model.ViViT_FE import ViViT_FE
 from configuration import build_config
-from dataloader2 import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from dane_dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from asam import ASAM, SAM
 
 from torch.utils.data import Dataset, DataLoader
@@ -11,7 +14,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='13'
+exp='17'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -42,7 +45,7 @@ torch.backends.cudnn.benchmark = True
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':16,
+params = {'batch_size':4,
           'shuffle': shuffle,
           'num_workers': 4}
 
@@ -64,11 +67,12 @@ validation_generator = DataLoader(val_dataset, **params)
 #Define model
 print("Initiating Model...")
 
-model=Spatial_Perceiver()
+#model=Spatial_Perceiver()
+model = ViViT_FE()
 model=model.to(device)
 
 #Define loss and optimizer
-lr=0.01
+lr=0.02
 wt_decay=5e-4
 criterion=torch.nn.BCEWithLogitsLoss() #CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wt_decay)
@@ -81,7 +85,7 @@ eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 
 # Learning Rate Scheduler
-#scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
@@ -105,7 +109,7 @@ for epoch in range(max_epochs):
 
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
-        #print("Inputs shape : ",inputs.shape)
+        #print("train inputs: ", inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
@@ -130,7 +134,7 @@ for epoch in range(max_epochs):
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
     epoch_acc_train.append(accuracy)
-    #scheduler.step()
+    scheduler.step()
 
     #Test
     model.eval()
@@ -139,7 +143,7 @@ for epoch in range(max_epochs):
     cnt = 0.
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(validation_generator):
-            inputs = inputs.cuda(); #print("Validation sample: ",inputs,"target: ",targets)
+            inputs = inputs.cuda(); #print("Val target: ",targets)
             targets = targets.cuda(); inputs  = torch.squeeze(inputs)
             predictions = model(inputs.float())
             loss += criterion(predictions, targets).sum().item()
