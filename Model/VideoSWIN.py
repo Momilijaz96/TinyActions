@@ -603,6 +603,9 @@ class SwinTransformer3D_head(nn.Module):
                  **kwargs):
         super().__init__()
 
+        self.in_channels = in_channels
+        self.num_classes = num_classes
+        self.loss_cls = loss_cls
         self.spatial_type = spatial_type
         self.dropout_ratio = dropout_ratio
         self.init_std = init_std
