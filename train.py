@@ -73,7 +73,7 @@ model = SwinTransformer3D()
 
 #load weights
 PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
-model.load_state_dict(torch.load(PATH))
+model.load_state_dict(torch.load(PATH)['state_dict'])
 
 model=model.to(device)
 
