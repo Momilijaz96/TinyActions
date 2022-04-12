@@ -2,7 +2,7 @@ import torch
 import numpy as np
 #from Model.Sp_frame_shareweights import Spatial_Perceiver
 #from Model.SpatialPerceiver_frame import Spatial_Perceiver
-from Model.VideoSWIN import SwinTransformer3D
+from Model.VideoSWIN import VideoSWIN3D
 #from Model.ViViT_FE import ViViT_FE
 
 from configuration import build_config
@@ -69,22 +69,9 @@ validation_generator = DataLoader(val_dataset, **params)
 print("Initiating Model...")
 
 #model=Spatial_Perceiver()
-model = SwinTransformer3D()
-
-#load weights
-PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
-weights = torch.load(PATH)['state_dict']
-new_state_dict = {}
-
-for key in weights.keys():
-    string_new = ''
-    for item in key.split('.')[1:]:
-        string_new += item + '.'
-    string_new = string_new[:-1]
-    new_state_dict[string_new] = weights[key]
-
-model.load_state_dict(new_state_dict)
+model = VideoSWIN3D()
 model=model.to(device)
+
 
 #Define loss and optimizer
 lr=0.02
@@ -123,15 +110,17 @@ for epoch in range(max_epochs):
     cnt = 0.
 
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
-        inputs = inputs.to(device);inputs  = torch.squeeze(inputs)
-        #print("train inputs: ", inputs.shape)
+        inputs = inputs.to(device)
+        inputs  = torch.squeeze(inputs)
+        print("train inputs: ", inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
 
         # Ascent Step
-        predictions = model(inputs.float())
-        print("Predictions: ", predictions.shape); batch_loss = criterion(predictions, targets)
+        predictions = (model(inputs.float()))
+        print("Predictions: ", predictions.shape)
+        batch_loss = criterion(predictions, targets)
         batch_loss.mean().backward()
         minimizer.ascent_step()
 
