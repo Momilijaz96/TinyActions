@@ -539,10 +539,8 @@ class SwinTransformer3D(nn.Module):
         self.norm = norm_layer(self.num_features)
 
         #Classification head
-        self.class_head = nn.Sequential(
-            nn.LayerNorm(614400),
-            nn.Linear(614400, num_classes)
-        )
+        self.fc_cls = nn.Linear(614400, num_classes)
+        
 
         self._freeze_stages()
 
@@ -576,7 +574,7 @@ class SwinTransformer3D(nn.Module):
         #Added classification mechanism
         n = x.shape[0]
         x = torch.reshape(x,(n,-1))
-        x = self.class_head(x)
+        x = self.fc_cls(x)
         return x
 
     def train(self, mode=True):
