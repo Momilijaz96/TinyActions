@@ -16,7 +16,6 @@ PATH='evals/'+exp+'/'
 
 
 def compute_labels(pred,inf_th):
-    
     pred = pred
     
     #Pass pred through sigmoid
@@ -73,6 +72,13 @@ with open('answer.txt', 'w') as wid:
     vid_id = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
+
+            video_id = video_id[0]['path'][0]
+            video_id = video_id.split('.')[0]
+            
+            print("video id: ",video_id)
+            print("vid: ",vid_id)
+
             inputs = inputs.cuda()
             inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
             predictions = model(inputs.float())
