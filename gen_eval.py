@@ -57,7 +57,7 @@ test_generator = DataLoader(test_dataset,**params)
 #Define model
 print("Initiating Model...")
 
-ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_9/9_best_ckpt.pt'
+ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_19/19_best_ckpt.pt'
 model = VideoSWIN3D()
 model.load_state_dict(torch.load(ckpt_path))
 model=model.to(device)
