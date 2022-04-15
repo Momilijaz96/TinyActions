@@ -41,7 +41,7 @@ shuffle = True
 print("Creating params....")
 params = {'batch_size':1,
           'shuffle': shuffle,
-          'num_workers': 4}
+          'num_workers': 1}
 
 inf_threshold = 0.5
 
