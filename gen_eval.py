@@ -86,6 +86,7 @@ with open('answer.txt', 'w') as wid:
             str_labels = str(labels)
             str_labels = str_labels.replace("[","")
             str_labels = str_labels.replace("]","")
+            str_labels = str_labels.replace(",","")
 
             result_string = str(vid_id) +' '+ str_labels
             print("Result String: ",result_string)
