@@ -3,11 +3,9 @@ import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
 from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
-from asam import ASAM, SAM
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import  DataLoader
 from tqdm import tqdm
-from utils.visualize import get_plot
-from sklearn.metrics import accuracy_score
+
 import os
 
 exp='e19_val'
@@ -68,15 +66,16 @@ model = VideoSWIN3D()
 model.load_state_dict(torch.load(ckpt_path))
 model=model.to(device)
 
-best_accuracy = 0.
+count = 0
 print("Begin Evaluadtion....")
 model.eval()
+
 with open('answer.txt', 'w') as wid:
     vid_id = 0
     with torch.no_grad():
         for batch_idx, (inputs, _) in enumerate(tqdm(test_generator)):
             inputs = inputs.cuda()
-            print(inputs.shape)
+            #print(inputs.shape)
             inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
             predictions = model(inputs.float())
             
@@ -89,10 +88,12 @@ with open('answer.txt', 'w') as wid:
             str_labels = str(labels)
             str_labels.replace("[","")
             str_labels.replace("]","")
+            str_labels.replace("[","")
+            str_labels.replace("]","")
 
             result_string = str(vid_id) + str_labels
             print("Result String: ",result_string)
             wid.write(result_string + '\n')
+            count+=1
 
-print(f"Best test accuracy: {best_accuracy}")
-print("TRAINING COMPLETED :)")
+print(f"Total Samples: {count}")
