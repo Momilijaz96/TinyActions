@@ -47,7 +47,7 @@ shuffle = True
 print("Creating params....")
 params = {'batch_size':1,
           'shuffle': shuffle,
-          'num_workers': 1}
+          'num_workers': 2}
 
 inf_threshold = 0.5
 
@@ -58,7 +58,7 @@ skip_frames = 2
 
 test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME,
                      skip_frames=2, input_size=224)
-test_generator = DataLoader(test_dataset)
+test_generator = DataLoader(test_dataset,**params)
 
 #Define model
 print("Initiating Model...")
@@ -76,7 +76,7 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, _) in enumerate(test_generator):
             inputs = inputs.cuda()
-            inputs  = torch.squeeze(inputs) #To remove extra clips dimension
+            #inputs  = torch.squeeze(inputs) #To remove extra clips dimension
             print(inputs.shape)
             predictions = model(inputs.float())
             
