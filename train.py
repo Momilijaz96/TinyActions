@@ -15,7 +15,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='18'
+exp='21'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -50,7 +50,7 @@ params = {'batch_size':4,
           'shuffle': shuffle,
           'num_workers': 4}
 
-max_epochs = 250
+max_epochs = 50
 inf_threshold = 0.6
 print(params)
 
@@ -59,10 +59,10 @@ dataset = 'TinyVirat'
 cfg = build_config(dataset)
 skip_frames = 2
 
-train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=224)
+train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
 training_generator = DataLoader(train_dataset,**params)
 
-val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=224)
+val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
 validation_generator = DataLoader(val_dataset, **params)
 
 #Define model
@@ -87,7 +87,7 @@ eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 
 # Learning Rate Scheduler
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, max_epochs)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(minimizer.optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
@@ -112,14 +112,14 @@ for epoch in range(max_epochs):
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
         inputs  = torch.squeeze(inputs)
-        print("train inputs: ", inputs.shape)
+        #print("train inputs: ", inputs.shape)
         targets = targets.to(device)
 
         optimizer.zero_grad()
 
         # Ascent Step
         predictions = (model(inputs.float()))
-        print("Predictions: ", predictions.shape)
+        #print("Predictions: ", predictions.shape)
         batch_loss = criterion(predictions, targets)
         batch_loss.mean().backward()
         minimizer.ascent_step()

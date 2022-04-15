@@ -10,7 +10,7 @@ from configuration import build_config
 from tqdm import tqdm
 import time
 
-VIDEO_LENGTH = 32  #num of frames in every video
+VIDEO_LENGTH = 100  #num of frames in every video
 TUBELET_TIME = VIDEO_LENGTH
 NUM_CLIPS = VIDEO_LENGTH // TUBELET_TIME
 
@@ -172,12 +172,8 @@ class TinyVirat(Dataset):
             video_labels = self.annotations[video_id]['label']
         if self.data_split == 'train':
             clips = self.build_consecutive_clips(video_path)
-        else:
-            clips = self.build_consecutive_clips(video_path)
             
-            if self.data_split == 'test':
-                return clips, [self.annotations[video_id]]
-                
+           
         label = np.zeros(self.num_classes)
         for _class in video_labels:
             label[self.class_labels.index(_class)] = 1
@@ -192,8 +188,13 @@ class TinyVirat(Dataset):
             clips = torch.cat((clips,rem_clips),dim=0)
         elif clips.shape[0] > NUM_CLIPS:
             clips = clips[:NUM_CLIPS,:,:,:,:]
+        
+        if self.data_split == 'test':
+            return clips, [self.annotations[video_id]]
+                
         return clips, label #clips: nc x ch x t x H x W
 
+'''
 if __name__ == '__main__':
     shuffle = True
     batch_size = 1
@@ -215,3 +216,4 @@ if __name__ == '__main__':
                 break
     print("time taken : ", time.time() - start)
 
+'''
