@@ -49,8 +49,6 @@ def get_labels(labels,class_map_path=cfg.file_paths['class_map'],num_classes=cfg
         onehot[idx] = 1
     return onehot
 
-
-
 if __name__=='__main__':
     
     train_list_IDs,train_labels,train_IDs_path = get_data_args('train',cfg.file_paths['train_data'],cfg.file_paths['train_labels'])

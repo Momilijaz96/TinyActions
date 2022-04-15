@@ -5,11 +5,11 @@ import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 #from Model.ViViT_FE import ViViT_FE
 
-from configuration import build_config
-from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
-from asam import ASAM, SAM
+from my_dataloader import TinyVIRAT_dataset
+import Preprocessing as pre
+from asam import ASAM
 
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import  DataLoader
 from tqdm import tqdm
 from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
@@ -54,16 +54,13 @@ max_epochs = 50
 inf_threshold = 0.6
 print(params)
 
-#Data Generators
-dataset = 'TinyVirat'
-cfg = build_config(dataset)
-skip_frames = 2
+######### Data Generators ########
 
-train_dataset = TinyVirat(cfg, 'train', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
+train_dataset = TinyVIRAT_dataset(list_IDs=pre.train_list_IDs,labels=pre.train_labels,IDs_path=pre.train_IDs_path)
 training_generator = DataLoader(train_dataset,**params)
 
-val_dataset = TinyVirat(cfg, 'val', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=128)
-validation_generator = DataLoader(val_dataset, **params)
+val_dataset = TinyVIRAT_dataset(list_IDs=pre.train_list_IDs,labels=pre.train_labels,IDs_path=pre.train_IDs_path)
+val_generator = DataLoader(val_dataset,**params)
 
 #Define model
 print("Initiating Model...")
@@ -111,9 +108,9 @@ for epoch in range(max_epochs):
 
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
-        inputs  = torch.squeeze(inputs)
-        #print("train inputs: ", inputs.shape)
         targets = targets.to(device)
+        print("Input shape: ",inputs.shape)
+        print("Target shape:",targets.shape)
 
         optimizer.zero_grad()
 
@@ -146,7 +143,7 @@ for epoch in range(max_epochs):
     accuracy = 0.
     cnt = 0.
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(validation_generator):
+        for batch_idx, (inputs, targets) in enumerate(val_generator):
             inputs = inputs.cuda(); #print("Val target: ",targets)
             targets = targets.cuda(); inputs  = torch.squeeze(inputs)
             predictions = model(inputs.float())
