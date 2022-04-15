@@ -51,7 +51,8 @@ dataset = 'TinyVirat'
 cfg = build_config(dataset)
 skip_frames = 2
 
-test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME, skip_frames=2, input_size=224)
+test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME,
+                     skip_frames=2, input_size=224)
 test_generator = DataLoader(test_dataset,**params)
 
 #Define model
@@ -68,10 +69,10 @@ model.eval()
 with open('answer.txt', 'w') as wid:
     vid_id = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(test_generator):
+        for batch_idx, (inputs, _) in enumerate(test_generator):
             inputs = inputs.cuda()
-            print(targets)
             inputs  = torch.squeeze(inputs) #To remove extra clips dimension
+            print(inputs.shape)
             predictions = model(inputs.float())
             
             #Get predicted labels for this video sample
@@ -80,6 +81,7 @@ with open('answer.txt', 'w') as wid:
             #Write video id and labels in file
             vid_id+=1
             result_string = str(vid_id) + str(labels)
+            print("Result String: ",result_string)
             wid.write(result_string + '\n')
 
 print(f"Best test accuracy: {best_accuracy}")
