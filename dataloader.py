@@ -193,7 +193,7 @@ class TinyVirat(Dataset):
                 
         return clips, label #clips: nc x ch x t x H x W
 
-'''
+
 if __name__ == '__main__':
     shuffle = True
     batch_size = 1
@@ -215,4 +215,3 @@ if __name__ == '__main__':
                 break
     print("time taken : ", time.time() - start)
 
-'''
