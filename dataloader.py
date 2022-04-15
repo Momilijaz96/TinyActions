@@ -198,7 +198,7 @@ if __name__ == '__main__':
     shuffle = True
     batch_size = 1
 
-    dataset = 'TinyVirat-d'
+    dataset = 'TinyVirat'
     cfg = build_config(dataset)
 
     data_generator = TinyVirat(cfg, 'test', 1.0, num_frames=32, skip_frames=2, input_size=128)
