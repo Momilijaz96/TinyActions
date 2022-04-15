@@ -10,7 +10,7 @@ from configuration import build_config
 from tqdm import tqdm
 import time
 
-VIDEO_LENGTH = 100  #num of frames in every video
+VIDEO_LENGTH = 32  #num of frames in every video
 TUBELET_TIME = VIDEO_LENGTH
 NUM_CLIPS = VIDEO_LENGTH // TUBELET_TIME
 
