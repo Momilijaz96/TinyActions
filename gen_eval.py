@@ -24,8 +24,7 @@ def compute_labels(pred,inf_th):
     pred = torch.sigmoid(pred)
     pred = pred.cpu().data.numpy()
     #Use inference throughold to get one hot encoded labels
-    pred = pred > inf_th
-
+    pred = int(pred > inf_th)
     #Compute equal labels
     return pred
 
