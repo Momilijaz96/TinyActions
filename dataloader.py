@@ -170,8 +170,7 @@ class TinyVirat(Dataset):
             video_labels = []
         else:
             video_labels = self.annotations[video_id]['label']
-        if self.data_split == 'train':
-            clips = self.build_consecutive_clips(video_path)
+        clips = self.build_consecutive_clips(video_path)
            
         label = np.zeros(self.num_classes)
         for _class in video_labels:
