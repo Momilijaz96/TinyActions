@@ -70,7 +70,7 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(test_generator):
             inputs = inputs.cuda()
-            targets = targets.cuda()
+            print(targets)
             inputs  = torch.squeeze(inputs) #To remove extra clips dimension
             predictions = model(inputs.float())
             
