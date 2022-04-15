@@ -28,8 +28,8 @@ def compute_labels(pred,inf_th):
 
     #Use inference threshold to get one hot encoded labels
     res = pred > inf_th
-    print(res)
-    pred = list(map(int, res)) 
+    #print(res)
+    pred = list(map(int, res[0])) 
     
     #Compute equal labels
     return pred
