@@ -73,7 +73,7 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
 
-            video_id = video_id[0]['path'][0]
+            video_id = targets[0]['path'][0]
             video_id = video_id.split('.')[0]
             
             print("video id: ",video_id)
@@ -82,7 +82,7 @@ with open('answer.txt', 'w') as wid:
             inputs = inputs.cuda()
             inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
             predictions = model(inputs.float())
-            print(targets)
+
             #Get predicted labels for this video sample
             labels = compute_labels(predictions,inf_threshold)
             
