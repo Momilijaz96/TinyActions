@@ -45,7 +45,7 @@ torch.backends.cudnn.benchmark = True
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':1,
+params = {'batch_size':3,
           'shuffle': shuffle,
           'num_workers': 2}
 
