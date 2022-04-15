@@ -208,9 +208,9 @@ if __name__ == '__main__':
     for epoch in range(0, 1):
         for i, (clips, labels) in enumerate(tqdm(dataloader)):
             clips = clips.data.numpy()
-            labels = labels.data.numpy()
+            #labels = labels.data.numpy()
             print(clips.shape)
-            print(labels.shape)
+            print(labels)
             if i==10:
                 break
     print("time taken : ", time.time() - start)
