@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
-from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from dataloader2 import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
@@ -84,12 +84,10 @@ with open('answer.txt', 'w') as wid:
             vid_id+=1
 
             str_labels = str(labels)
-            str_labels.replace("[","")
-            str_labels.replace("]","")
-            str_labels.replace("[","")
-            str_labels.replace("]","")
+            str_labels = str_labels.replace("[","")
+            str_labels = str_labels.replace("]","")
 
-            result_string = str(vid_id) + str_labels
+            result_string = str(vid_id) +' '+ str_labels
             print("Result String: ",result_string)
             wid.write(result_string + '\n')
             count+=1
