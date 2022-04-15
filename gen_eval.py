@@ -27,7 +27,8 @@ def compute_labels(pred,inf_th):
     pred = pred.cpu().data.numpy()
 
     #Use inference threshold to get one hot encoded labels
-    pred = list(map(int,pred > inf_th)) 
+    res = pred > inf_th
+    pred = list(map(int, res)) 
     
     #Compute equal labels
     return pred
@@ -83,7 +84,7 @@ with open('answer.txt', 'w') as wid:
             
             #Write video id and labels in file
             vid_id+=1
-            
+
             str_labels = str(labels)
             str_labels.replace("[","")
             str_labels.replace("]","")
