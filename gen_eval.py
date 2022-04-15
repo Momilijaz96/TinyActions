@@ -45,7 +45,7 @@ torch.backends.cudnn.benchmark = True
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':3,
+params = {'batch_size':1,
           'shuffle': shuffle,
           'num_workers': 2}
 
@@ -58,7 +58,7 @@ skip_frames = 2
 
 test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME,
                      skip_frames=2, input_size=224)
-test_generator = DataLoader(test_dataset,**params)
+test_generator = DataLoader(test_dataset,2, shuffle=False, num_workers=1)
 
 #Define model
 print("Initiating Model...")
@@ -74,7 +74,7 @@ model.eval()
 with open('answer.txt', 'w') as wid:
     vid_id = 0
     with torch.no_grad():
-        for batch_idx, (inputs, _) in enumerate(test_generator):
+        for batch_idx, (inputs, _) in enumerate(tqdm(test_generator)):
             inputs = inputs.cuda()
             #inputs  = torch.squeeze(inputs) #To remove extra clips dimension
             print(inputs.shape)
