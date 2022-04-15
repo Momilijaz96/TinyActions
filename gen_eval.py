@@ -19,12 +19,16 @@ PATH='evals/'+exp+'/'
 
 
 def compute_labels(pred,inf_th):
+    
     pred = pred
+    
     #Pass pred through sigmoid
     pred = torch.sigmoid(pred)
     pred = pred.cpu().data.numpy()
-    #Use inference throughold to get one hot encoded labels
-    pred = int(pred > inf_th)
+
+    #Use inference threshold to get one hot encoded labels
+    pred = list(map(int,pred > inf_th)) 
+    
     #Compute equal labels
     return pred
 
@@ -79,7 +83,12 @@ with open('answer.txt', 'w') as wid:
             
             #Write video id and labels in file
             vid_id+=1
-            result_string = str(vid_id) + str(labels)
+            
+            str_labels = str(labels)
+            str_labels.replace("[","")
+            str_labels.replace("]","")
+
+            result_string = str(vid_id) + str_labels
             print("Result String: ",result_string)
             wid.write(result_string + '\n')
 
