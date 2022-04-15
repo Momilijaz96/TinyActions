@@ -58,7 +58,7 @@ skip_frames = 2
 
 test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME,
                      skip_frames=2, input_size=224)
-test_generator = DataLoader(test_dataset,2, shuffle=False, num_workers=1)
+test_generator = DataLoader(test_dataset,2, shuffle=False, num_workers=0)
 
 #Define model
 print("Initiating Model...")

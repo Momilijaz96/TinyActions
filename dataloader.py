@@ -194,7 +194,6 @@ class TinyVirat(Dataset):
             clips = clips[:NUM_CLIPS,:,:,:,:]
         return clips, label #clips: nc x ch x t x H x W
 
-'''
 if __name__ == '__main__':
     shuffle = True
     batch_size = 1
@@ -202,7 +201,7 @@ if __name__ == '__main__':
     dataset = 'TinyVirat-d'
     cfg = build_config(dataset)
 
-    data_generator = TinyVirat(cfg, 'train', 1.0, num_frames=4, skip_frames=2, input_size=128)
+    data_generator = TinyVirat(cfg, 'test', 1.0, num_frames=32, skip_frames=2, input_size=128)
     dataloader = DataLoader(data_generator, batch_size, shuffle=shuffle, num_workers=0)
 
     start = time.time()
@@ -215,4 +214,4 @@ if __name__ == '__main__':
             if i==10:
                 break
     print("time taken : ", time.time() - start)
-'''
+
