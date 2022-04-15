@@ -5,7 +5,6 @@ from configuration import build_config
 from dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
-
 import os
 
 exp='e19_val'
@@ -75,7 +74,6 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, _) in enumerate(tqdm(test_generator)):
             inputs = inputs.cuda()
-            #print(inputs.shape)
             inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
             predictions = model(inputs.float())
             
