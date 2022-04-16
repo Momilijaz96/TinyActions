@@ -78,15 +78,15 @@ class TinyVIRAT_dataset(Dataset):
         return frames
 
     def build_sample(self, video_path):
-        frames = self.load_all_frames(video_path)    
-        print("Frame dim: ",frames.shape)
-        if len(frames) > self.num_frames:
+        frames = self.load_all_frames(video_path)  
+        count_frames = frames.shape[0]  
+        if count_frames > self.num_frames:
             frames = frames[:self.num_frames]
 
-        elif len(frames) < self.num_frames: #Repeat last frame
-            diff = self.num_frames - len(frames)
-            last_frame = frames[-1,:,:]
-            tiled=np.tile(last_frame,(diff,1,1))
+        elif count_frames < self.num_frames: #Repeat last frame
+            diff = self.num_frames - count_frames
+            last_frame = frames[-1,:,:,:]
+            tiled=np.tile(last_frame,(diff,1,1,1))
             frames=np.append(frames,tiled,axis=0) 
 
         clips = torch.stack([self.transform(x) for x in frames])
