@@ -1,3 +1,4 @@
+from matplotlib.pyplot import get
 import torch
 import numpy as np
 #from Model.Sp_frame_shareweights import Spatial_Perceiver
@@ -6,7 +7,7 @@ from Model.VideoSWIN import VideoSWIN3D
 #from Model.ViViT_FE import ViViT_FE
 
 from my_dataloader import TinyVIRAT_dataset
-import Preprocessing as pre
+from Preprocessing import get_prtn
 from asam import ASAM
 
 from torch.utils.data import  DataLoader
@@ -55,11 +56,12 @@ inf_threshold = 0.6
 print(params)
 
 ######### Data Generators ########
-
-train_dataset = TinyVIRAT_dataset(list_IDs=pre.train_list_IDs,labels=pre.train_labels,IDs_path=pre.train_IDs_path)
+train_list_IDs,train_labels,train_IDs_path = get_prtn('train')
+train_dataset = TinyVIRAT_dataset(list_IDs=train_list_IDs,labels=train_labels,IDs_path=train_IDs_path)
 training_generator = DataLoader(train_dataset,**params)
 
-val_dataset = TinyVIRAT_dataset(list_IDs=pre.train_list_IDs,labels=pre.train_labels,IDs_path=pre.train_IDs_path)
+val_list_IDs,val_labels,val_IDs_path = get_prtn('val')
+val_dataset = TinyVIRAT_dataset(list_IDs=val_list_IDs,labels=val_labels,IDs_path=val_IDs_path)
 val_generator = DataLoader(val_dataset,**params)
 
 #Define model

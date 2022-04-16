@@ -49,9 +49,14 @@ def get_labels(labels,class_map_path=cfg.file_paths['class_map'],num_classes=cfg
         onehot[idx] = 1
     return onehot
 
-if __name__=='__main__':
-    
-    train_list_IDs,train_labels,train_IDs_path = get_data_args('train',cfg.file_paths['train_data'],cfg.file_paths['train_labels'])
-    val_list_IDs,val_labels,val_IDs_path = get_data_args('val',cfg.file_paths['val_data'],cfg.file_paths['val_labels'])
-    test_list_IDs,_,test_IDs_path = get_data_args('test',cfg.file_paths['test_data'],cfg.file_paths['test_labels'])
-    
+
+def get_prtn(prtn):
+    if prtn=='train':
+        train_list_IDs,train_labels,train_IDs_path = get_data_args('train',cfg.file_paths['train_data'],cfg.file_paths['train_labels'])
+        return train_list_IDs,train_labels,train_IDs_path
+    elif prtn=='val':
+        val_list_IDs,val_labels,val_IDs_path = get_data_args('val',cfg.file_paths['val_data'],cfg.file_paths['val_labels'])
+        return val_list_IDs,val_labels,val_IDs_path
+    else:
+        test_list_IDs,_,test_IDs_path = get_data_args('test',cfg.file_paths['test_data'],cfg.file_paths['test_labels'])
+        return test_list_IDs,_,test_IDs_path
