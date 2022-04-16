@@ -79,6 +79,7 @@ class TinyVIRAT_dataset(Dataset):
 
     def build_sample(self, video_path):
         frames = self.load_all_frames(video_path)    
+        print("Frame dim: ",frames.shape)
         if len(frames) > self.num_frames:
             frames = frames[:self.num_frames]
 
