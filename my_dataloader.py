@@ -103,6 +103,9 @@ class TinyVIRAT_dataset(Dataset):
         # Load data and get label
         sample_path = self.IDs_path[ID]
         X = self.build_sample(sample_path)
-        y = torch.Tensor(self.labels[ID])
+        if len(self.labels)>0:
+            y = torch.Tensor(self.labels[ID])
+        else:
+            y=torch.Tensor([])
 
         return X, y
