@@ -2,10 +2,11 @@ import torch
 import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
-from my_dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from my_dataloader import TinyVIRAT_dataset
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
+from Preprocessing import get_prtn
 
 exp='e19_val'
 
@@ -48,13 +49,9 @@ params = {'batch_size':1,
 inf_threshold = 0.5
 
 #Data Generators
-dataset = 'TinyVirat'
-cfg = build_config(dataset)
-skip_frames = 2
-
-test_dataset = TinyVirat(cfg, 'test', 1.0, num_frames = TUBELET_TIME,
-                     skip_frames=2, input_size=120)
-test_generator = DataLoader(test_dataset,1, shuffle=False, num_workers=0)
+test_list_IDs,test_labels,test_IDs_path = get_prtn('test')
+test_dataset = TinyVIRAT_dataset(list_IDs=test_list_IDs,labels=test_labels,IDs_path=test_IDs_path)
+test_generator = DataLoader(test_dataset,**params)
 
 #Define model
 print("Initiating Model...")
