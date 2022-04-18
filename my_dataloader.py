@@ -23,7 +23,7 @@ class Resize(object):
         return resize(vid, self.size)
 
 def to_normalized_float_tensor(vid):
-    return vid.to(torch.float32) / 255
+    return vid.permute(3, 0, 1, 2).to(torch.float32) / 255
 
 class ToFloatTensorInZeroOne(object):
     def __call__(self, vid):
