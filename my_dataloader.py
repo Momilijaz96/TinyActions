@@ -88,7 +88,7 @@ class TinyVIRAT_dataset(Dataset):
             last_frame = frames[-1,:,:,:]
             tiled=np.tile(last_frame,(diff,1,1,1))
             frames=np.append(frames,tiled,axis=0) 
-
+        frames = torch.from_numpy(x)
         clips = torch.stack([self.transform(x) for x in frames])
         return clips
 
