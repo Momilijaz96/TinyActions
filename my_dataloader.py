@@ -6,7 +6,6 @@ import numpy as np
 import config as cfg
 import Preprocessing  
 
-
 ############ Helper Functions ##############
 def resize(frames, size, interpolation='bilinear'):
     scale = None
@@ -104,6 +103,6 @@ class TinyVIRAT_dataset(Dataset):
         # Load data and get label
         sample_path = self.IDs_path[ID]
         X = self.build_sample(sample_path)
-        y = self.labels[ID]
+        y = torch.Tensor(self.labels[ID])
 
         return X, y
