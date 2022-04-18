@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
-from dataloader2 import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
+from my_dataloader import TinyVirat, VIDEO_LENGTH, TUBELET_TIME, NUM_CLIPS
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
