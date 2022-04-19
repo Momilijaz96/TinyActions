@@ -71,7 +71,6 @@ with open('answer.txt', 'w') as wid:
             
             inputs = inputs.cuda()
             predictions = model(inputs.float())
-            print(predictions)
             #Get predicted labels for this video sample
             labels = compute_labels(predictions,inf_threshold)
             
