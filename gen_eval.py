@@ -70,11 +70,11 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
 
-            video_id = targets[0]['path'][0]
-            video_id = video_id.split('.')[0]
+            #video_id = targets[0]['path'][0]
+            #video_id = video_id.split('.')[0]
             
-            print("video id: ",video_id)
-            print("vid: ",vid_id)
+            #print("video id: ",video_id)
+            #print("vid: ",vid_id)
 
             inputs = inputs.cuda()
             inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
@@ -91,7 +91,7 @@ with open('answer.txt', 'w') as wid:
             str_labels = str_labels.replace("]","")
             str_labels = str_labels.replace(",","")
 
-            result_string = str(vid_id) +' '+ str_labels
+            result_string = str(vid_id).zfill(5) +' '+ str_labels
             print("Result String: ",result_string)
             wid.write(result_string + '\n')
             count+=1
