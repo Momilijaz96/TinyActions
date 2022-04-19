@@ -70,10 +70,9 @@ with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
 
-            print(inputs.shape)
+            #print(inputs.shape)
 
             inputs = inputs.cuda()
-            inputs  = torch.squeeze(inputs,dim=0) #To remove extra clips dimension
             predictions = model(inputs.float())
 
             #Get predicted labels for this video sample
