@@ -64,14 +64,12 @@ model=model.to(device)
 count = 0
 print("Begin Evaluadtion....")
 model.eval()
-
 with open('answer.txt', 'w') as wid:
     vid_id = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
-
-            #print(inputs.shape)
-
+            
+            print(inputs)
             inputs = inputs.cuda()
             predictions = model(inputs.float())
 
