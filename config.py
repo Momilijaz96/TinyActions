@@ -1,7 +1,7 @@
 video_params ={
-    "width" : 120,  
-    "height" : 120,
-    "num_frames" : 100
+    "width" : 224,  
+    "height" : 224,
+    "num_frames" : 32
 }
 
 constants={
