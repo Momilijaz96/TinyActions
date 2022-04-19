@@ -30,6 +30,7 @@ def get_data_args(partn,data_path,labels_path):
         if partn!='test':
             labels[sample_id] = get_labels(sample['label'])
         IDs_path[sample_id] = data_path+sample['path'] 
+        i+=1
     return list_IDs,labels,IDs_path
 
 '''
