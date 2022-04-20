@@ -658,7 +658,7 @@ class VideoSWIN3D(nn.Module):
     def __init__(self):
         super().__init__()
         self.backbone = SwinTransformer3D()
-        self.head = SWIN3D_Linhead()
+        self.head = SwinTransformer3D_head() # SWIN3D_Linhead()
         
         #Load weights into backbone
         PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
