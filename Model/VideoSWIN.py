@@ -649,7 +649,7 @@ class SWIN3D_Linhead(nn.Module):
         self.fc3 = nn.Linear(1024,26)
     
     def forward(self,x):
-        x = x.view(x.shape[0],-1)
+        x = x.reshape(x.shape[0],-1)
         x = self.fc1(x)
         x = self.fc2(x)
         return self.fc3(x)
