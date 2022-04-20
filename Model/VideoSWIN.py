@@ -1,3 +1,4 @@
+from turtle import forward
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -640,12 +641,24 @@ class SwinTransformer3D_head(nn.Module):
         # [N, num_classes]
         return cls_score
 
+class SWIN3D_Linhead(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(224,2048)
+        self.fc2 = nn.Linear(2048,1024)
+        self.fc3 = nn.Linear(1024,26)
+    
+    def forward(self,x):
+        x = x.view(x.shape[0],-1)
+        x = self.fc1(x)
+        x = self.fc2(x)
+        return self.fc3(x)
 
 class VideoSWIN3D(nn.Module):
     def __init__(self):
         super().__init__()
         self.backbone = SwinTransformer3D()
-        self.head = SwinTransformer3D_head()
+        self.head = SWIN3D_Linhead()
         
         #Load weights into backbone
         PATH = '/home/mo926312/Documents/modelZoo/swin_tiny_patch244_window877_kinetics400_1k.pth'
