@@ -8,7 +8,7 @@ from tqdm import tqdm
 import os
 from Preprocessing import get_prtn
 
-exp='e19_val'
+exp='e21_val'
 
 #Make exp dir
 if not os.path.exists('evals/'+exp+'/'):
@@ -56,7 +56,7 @@ test_generator = DataLoader(test_dataset,**params)
 #Define model
 print("Initiating Model...")
 
-ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_19/19_best_ckpt.pt'
+ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_21/21_best_ckpt.pt'
 model = VideoSWIN3D()
 model.load_state_dict(torch.load(ckpt_path))
 model=model.to(device)
