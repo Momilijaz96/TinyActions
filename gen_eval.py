@@ -80,7 +80,7 @@ with open('answer.txt', 'w') as wid:
             ##### For dataloader 2 #######
             #squeeze clips dimension
             inputs = torch.squeeze(inputs,dim=1)
-            video_id = video_id[0]['path'][0]
+            video_id = targets[0]['path'][0]
             video_id = video_id.split('.')[0]
 
             print("video id: ",video_id)
