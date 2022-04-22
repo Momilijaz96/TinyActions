@@ -3,7 +3,7 @@ import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
 #from my_dataloader import TinyVIRAT_dataset
-from dataloader2 import TinyVIRAT
+from dataloader2 import TinyVirat
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
@@ -56,7 +56,7 @@ test_dataset = TinyVIRAT_dataset(list_IDs=test_list_IDs,labels=test_labels,IDs_p
 test_generator = DataLoader(test_dataset,**params)
 '''
 cfg = build_config('TinyVirat')
-dataset = TinyVIRAT(cfg=cfg,data_split='test')
+dataset = TinyVirat(cfg=cfg,data_split='test')
 test_generator = DataLoader(dataset,**params)
 
 #Define model
