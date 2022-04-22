@@ -9,11 +9,12 @@ import numpy as np
 from configuration import build_config
 from tqdm import tqdm
 import time
+import config as cfg
 
-VIDEO_LENGTH = 32  #num of frames in every video
+VIDEO_LENGTH = cfg.video_params['num_frames']  #num of frames in every video
 TUBELET_TIME = VIDEO_LENGTH
 NUM_CLIPS = VIDEO_LENGTH // TUBELET_TIME
-
+INPUT_SIZE = cfg.video_params['height']
 
 def resize(frames, size, interpolation='bilinear'):
     scale = None
@@ -58,7 +59,7 @@ def chunks(lst, n):
 
 
 class TinyVirat(Dataset):
-    def __init__(self, cfg, data_split, data_percentage, num_frames, skip_frames, input_size, shuffle=False):
+    def __init__(self, cfg, data_split, data_percentage, num_frames=VIDEO_LENGTH, skip_frames=2, input_size=INPUT_SIZE, shuffle=False):
         self.data_split = data_split
         self.num_classes = cfg.num_classes
         self.class_labels = [k for k, v in sorted(json.load(open(cfg.class_map, 'r')).items(), key=lambda item: item[1])]
@@ -183,7 +184,6 @@ class TinyVirat(Dataset):
         for _class in video_labels:
             label[self.class_labels.index(_class)] = 1
 
-        
         return clips, label
 
 '''

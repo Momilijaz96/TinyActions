@@ -49,10 +49,15 @@ params = {'batch_size':1,
 
 inf_threshold = 0.5
 
-#Data Generators
+#Data Generators - mydataloader
+'''
 test_list_IDs,test_labels,test_IDs_path = get_prtn('test')
 test_dataset = TinyVIRAT_dataset(list_IDs=test_list_IDs,labels=test_labels,IDs_path=test_IDs_path)
 test_generator = DataLoader(test_dataset,**params)
+'''
+cfg = build_config('TinyVirat')
+dataset = TinyVIRAT(cfg=cfg,data_split='test')
+test_generator = DataLoader(dataset,**params)
 
 #Define model
 print("Initiating Model...")
@@ -71,6 +76,10 @@ with open('answer.txt', 'w') as wid:
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
             
             inputs = inputs.cuda()
+
+            #squeeze clips dimension - for dataloader2
+            inputs = torch.squeeze(inputs,dim=1)
+
             predictions = model(inputs.float())
             #Get predicted labels for this video sample
             labels = compute_labels(predictions,inf_threshold)
