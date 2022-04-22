@@ -77,10 +77,17 @@ with open('answer.txt', 'w') as wid:
             
             inputs = inputs.cuda()
 
-            #squeeze clips dimension - for dataloader2
+            ##### For dataloader 2 #######
+            #squeeze clips dimension
             inputs = torch.squeeze(inputs,dim=1)
+            video_id = video_id[0]['path'][0]
+            video_id = video_id.split('.')[0]
+
+            print("video id: ",video_id)
+            print("vid: ",vid_id)
 
             predictions = model(inputs.float())
+            
             #Get predicted labels for this video sample
             labels = compute_labels(predictions,inf_threshold)
             
