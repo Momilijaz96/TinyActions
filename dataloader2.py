@@ -59,7 +59,7 @@ def chunks(lst, n):
 
 
 class TinyVirat(Dataset):
-    def __init__(self, cfg, data_split, data_percentage, num_frames=VIDEO_LENGTH, skip_frames=2, input_size=INPUT_SIZE, shuffle=False):
+    def __init__(self, cfg, data_split, data_percentage = 1, num_frames=VIDEO_LENGTH, skip_frames=2, input_size=INPUT_SIZE, shuffle=False):
         self.data_split = data_split
         self.num_classes = cfg.num_classes
         self.class_labels = [k for k, v in sorted(json.load(open(cfg.class_map, 'r')).items(), key=lambda item: item[1])]
