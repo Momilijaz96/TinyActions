@@ -83,8 +83,6 @@ with open('answer.txt', 'w') as wid:
             video_id = targets[0]['path'][0]
             video_id = video_id.split('.')[0]
 
-            print("video id: ",video_id)
-            print("Inputs dim: ",inputs.shape)
 
             predictions = model(inputs.float())
             
