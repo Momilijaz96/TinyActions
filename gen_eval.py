@@ -2,13 +2,14 @@ import torch
 import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
 from configuration import build_config
-from my_dataloader import TinyVIRAT_dataset
+#from my_dataloader import TinyVIRAT_dataset
+from dataloader2 import TinyVIRAT
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
 from Preprocessing import get_prtn
 
-exp='e21_val'
+exp='e22_val'
 
 #Make exp dir
 if not os.path.exists('evals/'+exp+'/'):
@@ -56,7 +57,7 @@ test_generator = DataLoader(test_dataset,**params)
 #Define model
 print("Initiating Model...")
 
-ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_21/21_best_ckpt.pt'
+ckpt_path = '/home/mo926312/Documents/TinyActions/Slurm_Scripts/'+'exps/exp_22/22_best_ckpt.pt'
 model = VideoSWIN3D()
 model.load_state_dict(torch.load(ckpt_path))
 model=model.to(device)

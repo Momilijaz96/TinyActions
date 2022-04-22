@@ -16,7 +16,7 @@ from utils.visualize import get_plot
 from sklearn.metrics import accuracy_score
 import os
 
-exp='21'
+exp='23'
 
 #Make exp dir
 if not os.path.exists('exps/exp_'+exp+'/'):
@@ -47,7 +47,7 @@ torch.backends.cudnn.benchmark = True
 # Training Parameters
 shuffle = True
 print("Creating params....")
-params = {'batch_size':4,
+params = {'batch_size':2,
           'shuffle': shuffle,
           'num_workers': 4}
 
@@ -81,12 +81,12 @@ optimizer=torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=
 
 
 #ASAM
-rho=0.5
+rho=0.55
 eta=0.01
 minimizer = ASAM(optimizer, model, rho=rho, eta=eta)
 
 # Learning Rate Scheduler
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(minimizer.optimizer, max_epochs)
+#scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(minimizer.optimizer, max_epochs)
 
 #TRAINING AND VALIDATING
 epoch_loss_train=[]
@@ -111,8 +111,8 @@ for epoch in range(max_epochs):
     for batch_idx, (inputs, targets) in enumerate(tqdm(training_generator)):
         inputs = inputs.to(device)
         targets = targets.to(device)
-        print("Input shape: ",inputs.shape)
-        print("Target shape:",targets.shape)
+        #print("Input shape: ",inputs.shape)
+        #print("Target shape:",targets.shape)
 
         optimizer.zero_grad()
 
@@ -137,7 +137,7 @@ for epoch in range(max_epochs):
     print(f"Epoch: {epoch}, Train accuracy: {accuracy:6.2f} %, Train loss: {loss:8.5f}")
     epoch_loss_train.append(loss)
     epoch_acc_train.append(accuracy)
-    scheduler.step()
+    #scheduler.step()
 
     #Test
     model.eval()

@@ -644,10 +644,10 @@ class SwinTransformer3D_head(nn.Module):
 class SWIN3D_Linhead(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(614400,2048)
-        self.fc2 = nn.Linear(2048,1024)
-        self.fc3 = nn.Linear(1024,26)
-    
+        self.fc1 = nn.Linear(368640,1024)
+        self.fc2 = nn.Linear(1024,256)
+        self.fc3 = nn.Linear(256,26)
+
     def forward(self,x):
         x = x.reshape(x.shape[0],-1)
         x = self.fc1(x)
