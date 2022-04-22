@@ -89,6 +89,7 @@ with open('answer.txt', 'w') as wid:
             predictions = model(inputs.float())
             
             #Get predicted labels for this video sample
+            print("Predicted scores: ",predictions)
             labels = compute_labels(predictions,inf_threshold)
             
             str_labels = str(labels)
