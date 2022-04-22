@@ -25,6 +25,7 @@ def compute_labels(pred,inf_th):
     pred = pred.cpu().data.numpy()
 
     #Use inference threshold to get one hot encoded labels
+    print("Predictions: ",pred)
     res = pred > inf_th
     #print(res)
     pred = list(map(int, res[0])) 
@@ -87,7 +88,6 @@ with open('answer.txt', 'w') as wid:
             predictions = model(inputs.float())
             
             #Get predicted labels for this video sample
-            print("Predicted scores: ",predictions)
             labels = compute_labels(predictions,inf_threshold)
             
             str_labels = str(labels)
