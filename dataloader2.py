@@ -178,6 +178,8 @@ class TinyVirat(Dataset):
             clips = self.build_consecutive_clips(video_path)
             
             if self.data_split == 'test':
+                if clips.shape[0]>1:
+                    clips = clips[0,:,:,:,:] #Use just first clip
                 return clips, [self.annotations[video_id]]
                 
         label = np.zeros(self.num_classes)
