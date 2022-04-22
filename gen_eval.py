@@ -96,7 +96,6 @@ with open('answer.txt', 'w') as wid:
             str_labels = str_labels.replace("]","")
             str_labels = str_labels.replace(",","")
             result_string = str(video_id) +' '+ str_labels
-            print("Result String: ",result_string)
 
             #Add result to res dictionary
             rmap[video_id] = result_string
@@ -104,11 +103,12 @@ with open('answer.txt', 'w') as wid:
     
     #Add remaining video id labels in the answer.txt
     for id in range(6097):
-        vid_id = str(vid_id).zfill(5)
+        vid_id = str(id).zfill(5)
         if vid_id not in rmap:
-           result_string = "{:05d} 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0".format(vid_id)
+           result_string = "{} 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0".format(vid_id)
         else:
             result_string = rmap[vid_id]
+        print("Result String: ",result_string)
         wid.write(result_string + '\n')
             
 print(f"Total Samples: {count}")
