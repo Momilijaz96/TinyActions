@@ -71,7 +71,6 @@ count = 0
 print("Begin Evaluadtion....")
 model.eval()
 with open('answer.txt', 'w') as wid:
-    vid_id = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
             
@@ -84,22 +83,19 @@ with open('answer.txt', 'w') as wid:
             video_id = video_id.split('.')[0]
 
             print("video id: ",video_id)
-            print("vid: ",vid_id)
+            print("Inputs dim: ",inputs.shape)
 
             predictions = model(inputs.float())
             
             #Get predicted labels for this video sample
             labels = compute_labels(predictions,inf_threshold)
             
-            #Write video id and labels in file
-            vid_id+=1
-
             str_labels = str(labels)
             str_labels = str_labels.replace("[","")
             str_labels = str_labels.replace("]","")
             str_labels = str_labels.replace(",","")
 
-            result_string = str(vid_id).zfill(5) +' '+ str_labels
+            result_string = str(video_id) +' '+ str_labels
             print("Result String: ",result_string)
             wid.write(result_string + '\n')
             count+=1
