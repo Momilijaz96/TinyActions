@@ -1,3 +1,4 @@
+from unittest import result
 import torch
 import numpy as np
 from Model.VideoSWIN import VideoSWIN3D
@@ -7,7 +8,6 @@ from dataloader2 import TinyVirat
 from torch.utils.data import  DataLoader
 from tqdm import tqdm
 import os
-from Preprocessing import get_prtn
 
 exp='e22_val'
 
@@ -70,6 +70,7 @@ model=model.to(device)
 count = 0
 print("Begin Evaluadtion....")
 model.eval()
+rmap= {}
 with open('answer.txt', 'w') as wid:
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(tqdm(test_generator)):
@@ -94,10 +95,20 @@ with open('answer.txt', 'w') as wid:
             str_labels = str_labels.replace("[","")
             str_labels = str_labels.replace("]","")
             str_labels = str_labels.replace(",","")
-
             result_string = str(video_id) +' '+ str_labels
             print("Result String: ",result_string)
-            wid.write(result_string + '\n')
-            count+=1
 
+            #Add result to res dictionary
+            rmap[video_id] = result_string
+            count+=1
+    
+    #Add remaining video id labels in the answer.txt
+    for id in range(6097):
+        vid_id = str(vid_id).zfill(5)
+        if vid_id not in rmap:
+           result_string = "{:05d} 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0".format(vid_id)
+        else:
+            result_string = rmap[vid_id]
+        wid.write(result_string + '\n')
+            
 print(f"Total Samples: {count}")
